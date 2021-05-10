@@ -239,7 +239,7 @@ public class EntranceFrame extends javax.swing.JFrame {
 
     private void signInButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signInButtonActionPerformed
         try {
-            this.clientSocket = new Socket("localhost", 3443);
+            this.clientSocket = new Socket("5.14.233.165", 8080);
             this.getClass().toString();
             ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
             ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
@@ -309,7 +309,7 @@ public class EntranceFrame extends javax.swing.JFrame {
 
     private void registerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerButtonActionPerformed
         try {
-            this.clientSocket = new Socket("localhost", 3443);
+            this.clientSocket = new Socket("5.14.233.165", 8080);
             ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
             ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
             oos.writeObject(new ClientInfo("Register", this.registerLoginField.getText(), this.registerPassword1.getText()));

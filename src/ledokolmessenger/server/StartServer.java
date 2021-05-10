@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  */
 public class StartServer {
 
-    private static final Integer PORT = 3443;
+    private static final Integer PORT = 8080;
     public static final List<Client> clients = new ArrayList<>();
     public static final Map<String, String> namePass = new HashMap<>();
     
