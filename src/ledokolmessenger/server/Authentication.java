@@ -48,15 +48,15 @@ public class Authentication implements Runnable{
                             new Thread(newClient).start();
                         }
                         else
-                            outputStream.writeObject(new Respond("Respond", 401, "Invalid password", java.time.LocalDateTime.now()));
+                            outputStream.writeObject(new Respond("Respond", 401, "Неправильный пароль", java.time.LocalDateTime.now()));
                     }
                     else
-                        outputStream.writeObject(new Respond("Respond", 401, "No such client exists", java.time.LocalDateTime.now()));
+                        outputStream.writeObject(new Respond("Respond", 401, "Такого пользователя не существует", java.time.LocalDateTime.now()));
             }
             else if (authMessage.getType().equals("Register"))
             {
                     namePass.put(authMessage.getClientName(), authMessage.getPassword());
-                    outputStream.writeObject(new Respond("Respond", 201, "Account created", java.time.LocalDateTime.now()));
+                    outputStream.writeObject(new Respond("Respond", 201, "Аккаунт успешно создан", java.time.LocalDateTime.now()));
                     this.outputStream.close();
                     this.inputStream.close();
                     this.userSocket.close();

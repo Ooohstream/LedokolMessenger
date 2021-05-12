@@ -25,7 +25,7 @@ public class StartServer {
         Socket userSocket = null;
         try {
             serverSocket = new ServerSocket(PORT);
-            System.out.println("Server has started working!");
+            System.out.println("Сервер запущен");
             
             while (true) {
                 userSocket = serverSocket.accept();
@@ -36,7 +36,7 @@ public class StartServer {
         } finally {
             userSocket.close();
             serverSocket.close();
-            System.out.println("Server has been stopped");
+            System.out.println("Сервер был остановлен");
         }
         
     }

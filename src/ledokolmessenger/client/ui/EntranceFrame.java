@@ -20,13 +20,13 @@ import ledokolmessenger.serialized.Respond;
 public class EntranceFrame extends javax.swing.JFrame {
 
     private Socket clientSocket;
-    private MessageDigest sha512;
+    private final MessageDigest sha512;
 
     public EntranceFrame() throws NoSuchAlgorithmException {
         initComponents();
+        this.signInPasswordField.setForeground(Color.gray);
         sha512 = MessageDigest.getInstance("SHA-512");
         this.setLocationRelativeTo(null);
-        this.signInPasswordField.setForeground(Color.gray);
     }
 
     @SuppressWarnings("unchecked")
@@ -40,6 +40,7 @@ public class EntranceFrame extends javax.swing.JFrame {
         signInLoginField = new javax.swing.JTextField();
         signInPasswordField = new javax.swing.JPasswordField();
         rememberMe = new javax.swing.JCheckBox();
+        signInErrorLabel = new javax.swing.JLabel();
         registerPane = new javax.swing.JPanel();
         backToSignIn = new javax.swing.JButton();
         registerButton = new javax.swing.JButton();
@@ -87,11 +88,6 @@ public class EntranceFrame extends javax.swing.JFrame {
                 signInLoginFieldFocusLost(evt);
             }
         });
-        signInLoginField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                signInLoginFieldActionPerformed(evt);
-            }
-        });
 
         signInPasswordField.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         signInPasswordField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -107,11 +103,8 @@ public class EntranceFrame extends javax.swing.JFrame {
 
         rememberMe.setFont(new java.awt.Font("Verdana", 0, 12)); // NOI18N
         rememberMe.setText("Запомнить меня");
-        rememberMe.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rememberMeActionPerformed(evt);
-            }
-        });
+
+        signInErrorLabel.setText(" ");
 
         javax.swing.GroupLayout signInPaneLayout = new javax.swing.GroupLayout(signInPane);
         signInPane.setLayout(signInPaneLayout);
@@ -124,6 +117,7 @@ public class EntranceFrame extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, signInPaneLayout.createSequentialGroup()
                 .addGap(45, 45, 45)
                 .addGroup(signInPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(signInErrorLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(rememberMe, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(signInPasswordField)
                     .addComponent(signInLoginField)
@@ -142,7 +136,9 @@ public class EntranceFrame extends javax.swing.JFrame {
                 .addComponent(signInPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(rememberMe)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addComponent(signInErrorLabel)
+                .addGap(18, 18, 18)
                 .addComponent(signInButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(toRegister, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -153,11 +149,6 @@ public class EntranceFrame extends javax.swing.JFrame {
 
         backToSignIn.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         backToSignIn.setText("Назад");
-        backToSignIn.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                backToSignInFocusGained(evt);
-            }
-        });
         backToSignIn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 backToSignInActionPerformed(evt);
@@ -180,27 +171,19 @@ public class EntranceFrame extends javax.swing.JFrame {
         jLabel2.setText("Логин");
 
         registerLoginField.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        registerLoginField.setToolTipText("Минимальное количество знаков - 6");
 
         jLabel4.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel4.setText("Пароль");
 
         registerPassword1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        registerPassword1.setToolTipText("");
-        registerPassword1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                registerPassword1ActionPerformed(evt);
-            }
-        });
+        registerPassword1.setToolTipText("Минимальное количество знаков - 6");
 
         jLabel5.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel5.setText("Повторный ввод пароля");
 
         registerPassword2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        registerPassword2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                registerPassword2ActionPerformed(evt);
-            }
-        });
+        registerPassword2.setToolTipText("Минимальное количество знаков - 6");
 
         errorLabel.setText(" ");
 
@@ -259,7 +242,7 @@ public class EntranceFrame extends javax.swing.JFrame {
 
     private void signInButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signInButtonActionPerformed
         try {
-            byte[] bytes = sha512.digest(Arrays.toString(this.signInPasswordField.getPassword()).getBytes());
+            byte[] bytes = sha512.digest(String.valueOf(this.signInPasswordField.getPassword()).getBytes());
             StringBuilder hashPassword = new StringBuilder();
             for (byte b : bytes) {
                 hashPassword.append(String.format("%02X", b));
@@ -275,7 +258,8 @@ public class EntranceFrame extends javax.swing.JFrame {
                 new MainWindow(clientSocket, oos, ois).setVisible(true);
                 this.setVisible(false);
             } else if (respond.getRespondCode() == 401) {
-                System.out.println(respond.getRespond());
+                this.signInErrorLabel.setForeground(Color.red);
+                this.signInErrorLabel.setText(respond.getRespond());
             }
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(EntranceFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -286,10 +270,6 @@ public class EntranceFrame extends javax.swing.JFrame {
         this.signInPane.setVisible(false);
         this.registerPane.setVisible(true);
     }//GEN-LAST:event_toRegisterActionPerformed
-
-    private void rememberMeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rememberMeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_rememberMeActionPerformed
 
     private void backToSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backToSignInActionPerformed
         this.registerPane.setVisible(false);
@@ -303,10 +283,6 @@ public class EntranceFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_signInLoginFieldFocusGained
 
-    private void backToSignInFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_backToSignInFocusGained
-
-    }//GEN-LAST:event_backToSignInFocusGained
-
     private void signInLoginFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_signInLoginFieldFocusLost
         if (this.signInLoginField.getText().isEmpty()) {
             this.signInLoginField.setText("Логин");
@@ -315,14 +291,14 @@ public class EntranceFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_signInLoginFieldFocusLost
 
     private void signInPasswordFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_signInPasswordFieldFocusGained
-        if ("Пароль".equals(this.signInPasswordField.getText())) {
+        if ("Пароль".equals(String.valueOf(this.signInPasswordField.getPassword()))) {
             this.signInPasswordField.setText(null);
             this.signInPasswordField.setForeground(Color.black);
         }
     }//GEN-LAST:event_signInPasswordFieldFocusGained
 
     private void signInPasswordFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_signInPasswordFieldFocusLost
-        if (this.signInPasswordField.getText().isEmpty()) {
+        if (String.valueOf(this.signInPasswordField.getPassword()).isEmpty()) {
             this.signInPasswordField.setText("Пароль");
             this.signInPasswordField.setForeground(Color.gray);
         }
@@ -332,39 +308,34 @@ public class EntranceFrame extends javax.swing.JFrame {
         try {
             this.errorLabel.setText(" ");
             if (Arrays.equals(this.registerPassword1.getPassword(), this.registerPassword2.getPassword())) {
-                byte[] bytes = sha512.digest(Arrays.toString(this.registerPassword1.getPassword()).getBytes());
+                byte[] bytes = sha512.digest(String.valueOf(this.registerPassword1.getPassword()).getBytes());
                 StringBuilder hashPassword = new StringBuilder();
-                for (byte b : bytes) {
+                for (byte b : bytes) 
                     hashPassword.append(String.format("%02X", b));
-                }
                 this.clientSocket = new Socket("localhost", 3443);
                 ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
                 oos.writeObject(new ClientInfo("Register", this.registerLoginField.getText(), hashPassword.toString()));
+                System.out.println(hashPassword.toString());
                 Respond respond = (Respond) ois.readObject();
                 System.out.println(respond.getRespondCode() + ": " + respond.getRespond());
+                this.errorLabel.setForeground(Color.green);
+                this.errorLabel.setText("Вы успешно зарегистрированны!");
+                this.registerLoginField.setText("");
+                this.registerPassword1.setText("");
+                this.registerPassword2.setText("");
                 this.clientSocket.close();
                 this.clientSocket = null;
+
+                // пользователь с таким именем уже существует
             } else {
-                this.errorLabel.setText("Пароли отличаются!");
                 this.errorLabel.setForeground(Color.red);
+                this.errorLabel.setText("Пароли отличаются!");
             }
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(EntranceFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_registerButtonActionPerformed
-
-    private void signInLoginFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signInLoginFieldActionPerformed
-
-    }//GEN-LAST:event_signInLoginFieldActionPerformed
-
-    private void registerPassword2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerPassword2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_registerPassword2ActionPerformed
-
-    private void registerPassword1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerPassword1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_registerPassword1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backToSignIn;
@@ -381,6 +352,7 @@ public class EntranceFrame extends javax.swing.JFrame {
     private javax.swing.JPasswordField registerPassword2;
     private javax.swing.JCheckBox rememberMe;
     private javax.swing.JButton signInButton;
+    private javax.swing.JLabel signInErrorLabel;
     private javax.swing.JTextField signInLoginField;
     private javax.swing.JPanel signInPane;
     private javax.swing.JPasswordField signInPasswordField;
