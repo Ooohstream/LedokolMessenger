@@ -19,8 +19,6 @@ import ledokolmessenger.serialized.Message;
  */
 public class MainWindow extends javax.swing.JFrame {
   String clientName;
-  private static final String SERVER_HOST = "localhost";
-  private static final int SERVER_PORT = 3443;
   private final Socket clientSocket;
   ObjectInputStream inputStream;
   ObjectOutputStream outputStream;
