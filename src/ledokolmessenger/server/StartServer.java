@@ -34,11 +34,11 @@ public class StartServer {
         Connection con = null;
         try {
             serverSocket = new ServerSocket(PORT);
-            System.out.println("Server has started working!");
-                        
             Class.forName(drvName);
             con = DriverManager.getConnection(dbUrl, user, pwd);
             Statement st=con.createStatement();
+            System.out.println("Сервер запущен");
+            
             while (true) {
                 userSocket = serverSocket.accept();
                 new Thread(new Authentication(userSocket,st)).start();
@@ -57,6 +57,7 @@ public class StartServer {
             } catch (SQLException ex) {
                 Logger.getLogger(StartServer.class.getName()).log(Level.SEVERE, null, ex);
             }
+            System.out.println("Сервер был остановлен");
         }
         
     }

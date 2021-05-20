@@ -28,26 +28,23 @@ public class MainWindow extends javax.swing.JFrame {
         this.jScrollPane1.getColumnHeader().setVisible(false);
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        this.jTable2.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
+        this.jTable2.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         this.clientSocket = clientSocket;
         this.jLabel1.setText(clientName);
         this.outputStream = outputStream;
         this.inputStream = inputStream;
               
-      new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          while (true) {
-            Message message = (Message) inputStream.readObject();
-            DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
-            model.addRow(new Object[]{message.getMessage(), " "});
+      new Thread(() -> {
+          try {
+              while (true) {
+                  Message message = (Message) inputStream.readObject();
+                  DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                  model.addRow(new Object[]{message.getMessage(), " "});
+              }
+          } catch (IOException | ClassNotFoundException e) {
+              e.printStackTrace();
           }
-        } catch (Exception e) {
-            e.printStackTrace();
-          }
-      }
-    }).start();
+        }).start();
       
       addWindowListener(new WindowAdapter() {
       @Override

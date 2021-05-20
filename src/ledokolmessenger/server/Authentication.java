@@ -64,7 +64,7 @@ public class Authentication implements Runnable{
                             new Thread(newClient).start();
                         }
                         else
-                            outputStream.writeObject(new Respond("Respond", 401, "Invalid password", java.time.LocalDateTime.now()));
+                            outputStream.writeObject(new Respond("Respond", 401, "Неправильный пароль", java.time.LocalDateTime.now()));
                     }
                     else
                         outputStream.writeObject(new Respond("Respond", 401, "No such client exists", java.time.LocalDateTime.now()));
