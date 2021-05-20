@@ -28,7 +28,7 @@ public class StartServer {
         ServerSocket serverSocket = null;
         Socket userSocket = null;
         String user="postgres";
-        String pwd = "";
+        String pwd = System.getenv("PG_PASSWORD");
         String dbUrl= "jdbc:postgresql://localhost:5432/serverdb";
         String drvName ="org.postgresql.Driver";
         Connection con = null;
@@ -38,18 +38,13 @@ public class StartServer {
             con = DriverManager.getConnection(dbUrl, user, pwd);
             Statement st=con.createStatement();
             System.out.println("Сервер запущен");
-            
             while (true) {
                 userSocket = serverSocket.accept();
                 new Thread(new Authentication(userSocket,st)).start();
-            }
-            
-        } catch (IOException ex) {
-            Logger.getLogger(StartServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
+            }   
+        } catch (IOException | SQLException ex) {
             Logger.getLogger(StartServer.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            userSocket.close();
             serverSocket.close();
             System.out.println("Server has been stopped");
             if(con != null) try {

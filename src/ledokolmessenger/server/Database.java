@@ -6,14 +6,9 @@
 package ledokolmessenger.server;
 
 import ledokolmessenger.serialized.ClientInfo;
-import ledokolmessenger.serialized.Respond;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -30,7 +25,7 @@ public class Database {
     public String SignIn(ClientInfo authMessage) throws SQLException
     {
         
-        String s = "SELECT * from users where login = '" + authMessage.getClientName() + ", password = '"+authMessage.getPassword() +"'";
+        String s = "SELECT * from users where login = '" + authMessage.getClientName() + "' AND password = '" + authMessage.getPassword() +"'";
         
         ResultSet resultSet = st.executeQuery(s);
         if (! resultSet.isBeforeFirst())
@@ -38,19 +33,23 @@ public class Database {
         
         //throw new SQLException("Phone Number Or Password Is Incorrect");
         
-        //while(resultSet.next())
-        //{
+        while(resultSet.next())
+        {
             //String title = resultSet.getString("login");
             String password = resultSet.getString("password");
             System.out.println(authMessage.getPassword());
-            if(authMessage.getPassword() == password){
-                return "OK";}
+            System.out.println(password);
+            if(authMessage.getPassword().equals(password)){
+                return "OK";
+            }
             else {
                 System.out.println(password);
                 System.out.println(authMessage.getPassword());
                 return "Invalid password";
         }
-        //}
+        }
+    
+        return "nothing";
     }
     
     public void Register(ClientInfo authMessage) throws SQLException{
