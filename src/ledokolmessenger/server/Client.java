@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ledokolmessenger.serialized.ClientInfo;
 import ledokolmessenger.serialized.Message;
 
 /**
@@ -17,7 +20,7 @@ public class Client implements Runnable{
     private final ObjectOutputStream outputStream;
     private final ObjectInputStream inputStream;
     private final String clientName;
- 
+    private Database db;
   public Client(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) {
       this.socket = socket;
       this.outputStream = outputStream;
@@ -27,20 +30,29 @@ public class Client implements Runnable{
 
   @Override
   public void run() {   
-      System.out.println(this.clientName);
-    try {
-      while (true) { 
-        Message message = (Message)inputStream.readObject();
-        if (message.getMessage().equalsIgnoreCase("##session##end##")) {
-          break;
-        }
-        this.sendMessage(message);
-        Thread.sleep(100);
+      System.out.println(this.clientName +" подключился");
+      
+    try {  
+      List<ClientInfo> friends;
+      String id=this.clientName;
+      friends=db.getListFriends(id);
+      System.out.println(this.clientName +" подключился");
+      outputStream.writeObject(friends);
+      while (true) {
+          
+          Message message = (Message)inputStream.readObject();
+          if (message.getMessage().equalsIgnoreCase("##session##end##")) {
+            break;
+            }
+          this.sendMessage(message);
+          Thread.sleep(100);
     }
   }
   catch (IOException | ClassNotFoundException | InterruptedException ex){
           Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-      }
+      } catch (SQLException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
   finally {
     this.close();
   }

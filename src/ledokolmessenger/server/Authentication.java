@@ -79,6 +79,8 @@ public class Authentication implements Runnable{
                     this.inputStream.close();
                     this.userSocket.close();
             }
+           
+            
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(Authentication.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {

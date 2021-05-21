@@ -40,7 +40,7 @@ public class MainWindow extends javax.swing.JFrame {
       try {
             if(inputStream.available() != 0)
             {
-                List<ClientInfo> friends = (ArrayList<ClientInfo>) inputStream.readObject();
+                List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
             }
       } catch (IOException | ClassNotFoundException ex) {
           Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);

@@ -9,6 +9,8 @@ import ledokolmessenger.serialized.ClientInfo;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -65,5 +67,28 @@ public class Database {
         
     }
     
+    public List<ClientInfo> getListFriends(String id) throws SQLException{
+        System.out.println(id);
+        List<ClientInfo> listfr = new ArrayList<ClientInfo>();
+        
+        String s ="SELECT * from users where login != '" + id + "'";
+        
+        ResultSet resultSet = st.executeQuery(s);
+        
+        
+        if (! resultSet.isBeforeFirst())
+            return listfr;
+        
+        while (resultSet.next())
+            {
+                String name = resultSet.getString("login");
+                String password = resultSet.getString("password");
+                ClientInfo user = new ClientInfo("ListFriends",name,password);
+                System.out.println(user.getClientName());
+                listfr.add(user);
+            }
+        
+        return listfr;
+    }
     
 }
