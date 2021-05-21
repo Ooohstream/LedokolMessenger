@@ -32,19 +32,19 @@ public class Database {
             return "Такого пользователя не существует";
         
         //throw new SQLException("Phone Number Or Password Is Incorrect");
-        System.out.println(authMessage.getPassword());
+        //System.out.println(authMessage.getPassword());
         while(resultSet.next())
         {
             String title = resultSet.getString("login");
             String password = resultSet.getString("password");
-            System.out.println(authMessage.getPassword());
-            System.out.println(password);
+            //System.out.println(authMessage.getPassword());
+            //System.out.println(password);
             if(authMessage.getPassword().equals(password)){
                 return "OK";
             }
             else{
-                System.out.println(password);
-                System.out.println(authMessage.getPassword());
+                //System.out.println(password);
+                //System.out.println(authMessage.getPassword());
                 return "Неверный пароль";
         }
         }
