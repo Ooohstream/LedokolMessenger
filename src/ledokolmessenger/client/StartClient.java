@@ -10,11 +10,12 @@ import ledokolmessenger.client.ui.EntranceFrame;
  * @author BOT
  */
 public class StartClient {
-        public static void main(String[] args) {
-            try {
-                new EntranceFrame().setVisible(true);
-            } catch (NoSuchAlgorithmException ex) {
-                Logger.getLogger(StartClient.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
+    public static void main(String[] args) {
+        try {
+            new EntranceFrame().setVisible(true);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(StartClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

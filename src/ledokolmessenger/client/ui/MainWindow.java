@@ -6,11 +6,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import ledokolmessenger.serialized.ClientInfo;
 import ledokolmessenger.serialized.Message;
 
 /**
@@ -34,6 +37,15 @@ public class MainWindow extends javax.swing.JFrame {
         this.outputStream = outputStream;
         this.inputStream = inputStream;
               
+      try {
+            if(inputStream.available() != 0)
+            {
+                List<ClientInfo> friends = (ArrayList<ClientInfo>) inputStream.readObject();
+            }
+      } catch (IOException | ClassNotFoundException ex) {
+          Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+      }
+      
       new Thread(() -> {
           try {
               while (true) {
