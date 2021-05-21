@@ -67,9 +67,9 @@ public class Database {
         
     }
     
-    public List<ClientInfo> getListFriends(String id) throws SQLException{
+    public ArrayList<ClientInfo> getListFriends(String id) throws SQLException{
         System.out.println(id);
-        List<ClientInfo> listfr = new ArrayList<ClientInfo>();
+        ArrayList<ClientInfo> listfr = new ArrayList<ClientInfo>();
         
         String s ="SELECT * from users where login != '" + id + "'";
         

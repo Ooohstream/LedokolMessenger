@@ -21,23 +21,21 @@ public class Client implements Runnable{
     private final ObjectInputStream inputStream;
     private final String clientName;
     private Database db;
-  public Client(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) {
+  public Client(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName,Database db) {
       this.socket = socket;
       this.outputStream = outputStream;
       this.inputStream = inputStream;
       this.clientName = clientName;
+      this.db=db;
   }
 
   @Override
   public void run() {   
-      System.out.println(this.clientName +" подключился");
-      
+      //System.out.println(this.clientName +" подключился");
+    String id=this.clientName;
     try {  
-      List<ClientInfo> friends;
-      String id=this.clientName;
-      friends=db.getListFriends(id);
-      System.out.println(this.clientName +" подключился");
-      outputStream.writeObject(friends);
+      System.out.println(id +" подключился");
+      outputStream.writeObject(db.getListFriends(id));
       while (true) {
           
           Message message = (Message)inputStream.readObject();

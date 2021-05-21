@@ -38,10 +38,11 @@ public class MainWindow extends javax.swing.JFrame {
         this.inputStream = inputStream;
               
       try {
-            if(inputStream.available() != 0)
-            {
+//            if(inputStream.available() != 0)
+//            {
                 List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
-            }
+                System.out.println(friends.get(0).getClientName());
+            //}
       } catch (IOException | ClassNotFoundException ex) {
           Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
       }
