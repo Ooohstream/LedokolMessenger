@@ -43,7 +43,7 @@ public class Authentication implements Runnable{
             {
                     String mess=db.SignIn(authMessage);
                     
-                    if(mess=="OK"){
+                    if(mess == "OK"){
                             outputStream.writeObject(new Respond("Respond", 200, "OK", java.time.LocalDateTime.now()));
                             Client newClient = new Client(this.userSocket, this.outputStream, this.inputStream, authMessage.getClientName());
                             StartServer.clients.add(newClient);

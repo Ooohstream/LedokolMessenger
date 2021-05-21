@@ -25,31 +25,31 @@ public class Database {
     public String SignIn(ClientInfo authMessage) throws SQLException
     {
         
-        String s = "SELECT * from users where login = '" + authMessage.getClientName() + "' AND password = '" + authMessage.getPassword() +"'";
+        String s = "SELECT * from users where login = '" + authMessage.getClientName() +"'";
         
         ResultSet resultSet = st.executeQuery(s);
         if (! resultSet.isBeforeFirst())
-            return "No such client exists";
+            return "Такого пользователя не существует";
         
         //throw new SQLException("Phone Number Or Password Is Incorrect");
-        
+        System.out.println(authMessage.getPassword());
         while(resultSet.next())
         {
-            //String title = resultSet.getString("login");
+            String title = resultSet.getString("login");
             String password = resultSet.getString("password");
             System.out.println(authMessage.getPassword());
             System.out.println(password);
             if(authMessage.getPassword().equals(password)){
                 return "OK";
             }
-            else {
+            else{
                 System.out.println(password);
                 System.out.println(authMessage.getPassword());
-                return "Invalid password";
+                return "Неверный пароль";
         }
         }
     
-        return "nothing";
+        return "ничего";
     }
     
     public void Register(ClientInfo authMessage) throws SQLException{

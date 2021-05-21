@@ -28,7 +28,7 @@ public class StartServer {
         ServerSocket serverSocket = null;
         Socket userSocket = null;
         String user="postgres";
-        String pwd = System.getenv("PG_PASSWORD");
+        String pwd = "";//System.getenv("PG_PASSWORD");
         String dbUrl= "jdbc:postgresql://localhost:5432/serverdb";
         String drvName ="org.postgresql.Driver";
         Connection con = null;
@@ -46,7 +46,7 @@ public class StartServer {
             Logger.getLogger(StartServer.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             serverSocket.close();
-            System.out.println("Server has been stopped");
+            System.out.println("Сервер был остановлен");
             if(con != null) try {
                 con.close();
             } catch (SQLException ex) {
