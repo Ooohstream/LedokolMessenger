@@ -42,6 +42,8 @@ public class Database {
             //System.out.println(authMessage.getPassword());
             //System.out.println(password);
             if(authMessage.getPassword().equals(password)){
+                s="UPDATE users SET is_online = " + true + " WHERE login = '" + authMessage.getClientName() +"'";
+                st.executeUpdate(s);
                 return "OK";
             }
             else{
@@ -67,23 +69,20 @@ public class Database {
         
     }
     
-    public ArrayList<ClientInfo> getListFriends(String id) throws SQLException{
-        System.out.println(id);
-        ArrayList<ClientInfo> listfr = new ArrayList<ClientInfo>();
+    public List<ClientInfo> getListFriends(String id) throws SQLException{
+        List<ClientInfo> listfr = new ArrayList<ClientInfo>();
         
         String s ="SELECT * from users where login != '" + id + "'";
         
         ResultSet resultSet = st.executeQuery(s);
-        
-        
         if (! resultSet.isBeforeFirst())
             return listfr;
         
         while (resultSet.next())
             {
                 String name = resultSet.getString("login");
-                String password = resultSet.getString("password");
-                ClientInfo user = new ClientInfo("ListFriends",name,password);
+                boolean is_online = resultSet.getBoolean("is_online");
+                ClientInfo user = new ClientInfo("ListFriends",name,is_online);
                 System.out.println(user.getClientName());
                 listfr.add(user);
             }
