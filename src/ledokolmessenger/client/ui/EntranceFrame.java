@@ -21,6 +21,8 @@ public class EntranceFrame extends javax.swing.JFrame {
 
     private Socket clientSocket;
     private final MessageDigest sha512;
+    private final String IP = "192.168.43.84";
+    private final int PORT = 3443;
 
     public EntranceFrame() throws NoSuchAlgorithmException {
         initComponents();
@@ -247,7 +249,7 @@ public class EntranceFrame extends javax.swing.JFrame {
             for (byte b : bytes) {
                 hashPassword.append(String.format("%02X", b));
             }
-            this.clientSocket = new Socket("localhost", 3443);
+            this.clientSocket = new Socket(IP, PORT);
             this.getClass().toString();
             ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
             ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
@@ -312,7 +314,7 @@ public class EntranceFrame extends javax.swing.JFrame {
                 StringBuilder hashPassword = new StringBuilder();
                 for (byte b : bytes) 
                     hashPassword.append(String.format("%02X", b));
-                this.clientSocket = new Socket("localhost", 3443);
+                this.clientSocket = new Socket(IP, PORT);
                 ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
                 oos.writeObject(new ClientInfo("Register", this.registerLoginField.getText(), hashPassword.toString()));
