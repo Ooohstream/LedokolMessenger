@@ -1,5 +1,6 @@
 package ledokolmessenger.client.ui;
 
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -21,10 +23,11 @@ import ledokolmessenger.serialized.Message;
  * @author BOT
  */
 public class MainWindow extends javax.swing.JFrame {
-  String clientName;
-  private final Socket clientSocket;
-  ObjectInputStream inputStream;
-  ObjectOutputStream outputStream;
+
+    String clientName;
+    private final Socket clientSocket;
+    ObjectInputStream inputStream;
+    ObjectOutputStream outputStream;
 
     public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream) {
         initComponents();
@@ -36,44 +39,45 @@ public class MainWindow extends javax.swing.JFrame {
         this.jLabel1.setText(clientName);
         this.outputStream = outputStream;
         this.inputStream = inputStream;
-              
-      try {
-//            if(inputStream.available() != 0)
-//            {
-                List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
-                System.out.println(friends.get(0).getClientName());
-            //}
-      } catch (IOException | ClassNotFoundException ex) {
-          Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-      }
-      
-      new Thread(() -> {
-          try {
-              while (true) {
-                  Message message = (Message) inputStream.readObject();
-                  DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
-                  model.addRow(new Object[]{message.getMessage(), " "});
-              }
-          } catch (IOException | ClassNotFoundException e) {
-              e.printStackTrace();
-          }
-        }).start();
-      
-      addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(WindowEvent e) {
-        super.windowClosing(e);
+
         try {
-            try (clientSocket; outputStream; inputStream) {
-                outputStream.writeObject(new Message("Message", "##session##end##", java.time.LocalDateTime.now()));
-            }
-        } catch (IOException exc) {
-            System.out.println("Closed");
+            DefaultListModel<String> model = new DefaultListModel<>();
+            this.jList1.setModel(model);
+            List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
+            friends.forEach(friend -> {
+                model.addElement(friend.getClientName());
+            });
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
-      }
-    });
-}
-    
+
+        new Thread(() -> {
+            try {
+                while (true) {
+                    Message message = (Message) inputStream.readObject();
+                    DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                    model.addRow(new Object[]{message.getMessage(), " "});
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                try {
+                    try (clientSocket; outputStream; inputStream) {
+                        outputStream.writeObject(new Message("Message", "##session##end##", java.time.LocalDateTime.now()));
+                    }
+                } catch (IOException exc) {
+                    System.out.println("Closed");
+                }
+            }
+        });
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -84,11 +88,14 @@ public class MainWindow extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        Tabs = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
         jScrollPane3 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList<>();
+        jPanel2 = new javax.swing.JPanel();
+        jTextField2 = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -118,8 +125,11 @@ public class MainWindow extends javax.swing.JFrame {
         jTable2.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jTable2);
 
+        jTextField1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jTextField1.setText("jTextField1");
+        jTextField1.setBorder(null);
 
+        jButton1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jButton1.setText("Send");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -136,7 +146,7 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(85, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -156,8 +166,11 @@ public class MainWindow extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(jList1);
 
-        jTabbedPane1.addTab("tab1", jScrollPane2);
+        Tabs.addTab("Друзья", jScrollPane2);
 
+        jScrollPane3.setBorder(null);
+
+        jList2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jList2.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
@@ -165,7 +178,39 @@ public class MainWindow extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(jList2);
 
-        jTabbedPane1.addTab("tab2", jScrollPane3);
+        Tabs.addTab("Групповые чаты", jScrollPane3);
+
+        jPanel2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jPanel2.setMaximumSize(new java.awt.Dimension(100, 100));
+
+        jTextField2.setFont(new java.awt.Font("Verdana", 0, 16)); // NOI18N
+        jTextField2.setBorder(null);
+
+        jButton2.setFont(new java.awt.Font("Verdana", 0, 16)); // NOI18N
+        jButton2.setText("Добавить");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextField2)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap(111, Short.MAX_VALUE)
+                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButton2)
+                .addGap(115, 115, 115))
+        );
+
+        Tabs.addTab("Добавить друга", jPanel2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -174,16 +219,16 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jTabbedPane1))
+                    .addComponent(Tabs)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 330, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(19, 19, 19))
+                        .addGap(2, 2, 2)
+                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -191,15 +236,15 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(7, 7, 7)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField1)
-                            .addComponent(jButton1)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jTabbedPane1)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Tabs, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -218,16 +263,19 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTabbedPane Tabs;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JList<String> jList1;
     private javax.swing.JList<String> jList2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
 }
