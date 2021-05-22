@@ -88,7 +88,7 @@ public class Database {
         return listfr;
     }
 
-    public ClientInfo addUser(String id,String Myself) throws SQLException {
+     public ClientInfo addUser(String id,String Myself) throws SQLException {
 
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;

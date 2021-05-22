@@ -14,71 +14,68 @@ import ledokolmessenger.serialized.*;
  *
  * @author BOT
  */
-public class Client implements Runnable{
+public class Client implements Runnable {
+
     private final Socket socket;
     private final ObjectOutputStream outputStream;
     private final ObjectInputStream inputStream;
     private final String clientName;
     private Database db;
-  public Client(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName,Database db) {
-      this.socket = socket;
-      this.outputStream = outputStream;
-      this.inputStream = inputStream;
-      this.clientName = clientName;
-      this.db=db;
-  }
 
-  @Override
-  public void run() {   
-    System.out.println(this.clientName +" подключился");
-    try {  
-      outputStream.writeObject(db.getListFriends(this.clientName));
-      while (true) {
-          SendableObject request = (SendableObject)inputStream.readObject();
-          
-          if(request.getType().equals("addFriend"))
-          {
-              ClientInfo request1 = (ClientInfo)request;
-              ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
-              
-              if(foundUser==null)
-                  outputStream.writeObject(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
-              else 
-                  outputStream.writeObject(new Respond("Respond", 200, "Пользователь "+ foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
-          }
-          
-          
-          
-          
-          
-          
-          Message message = (Message)inputStream.readObject();
-          if (message.getMessage().equalsIgnoreCase("##session##end##")) {
-            break;
-            }
-          this.sendMessage(message);
-          Thread.sleep(100);
+    public Client(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName, Database db) {
+        this.socket = socket;
+        this.outputStream = outputStream;
+        this.inputStream = inputStream;
+        this.clientName = clientName;
+        this.db = db;
     }
-  }
-  catch (IOException | ClassNotFoundException | InterruptedException | SQLException ex){
-          Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-      }
-  finally {
-    this.close();
-  }
-}
-  
-  public void sendMessage(Message message) {
-      StartServer.clients.forEach(client -> {
-          try {
-              client.outputStream.writeObject(message);
-          } catch (IOException ex) {
-              Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-          }
+
+    @Override
+    public void run() {
+        System.out.println(this.clientName + " подключился");
+        try {
+            outputStream.writeObject(db.getListFriends(this.clientName));
+            while (true) {
+                SendableObject request = (SendableObject) inputStream.readObject();
+
+                if (request.getType().equals("addFriend")) {
+                    ClientInfo request1 = (ClientInfo) request;
+                    ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
+
+                    if (foundUser == null) {
+                        outputStream.writeObject(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
+                    } else {
+                        outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
+                    }
+                    continue;
+                } 
+                else {
+                    Message message = (Message) inputStream.readObject();
+                    if (message.getMessage().equalsIgnoreCase("##session##end##")) {
+                        break;
+                    }
+                    this.sendMessage(message);
+                    Thread.sleep(100);
+                }
+            }
+        } catch (IOException | ClassNotFoundException | InterruptedException | SQLException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            this.close();
+        }
+    }
+
+    public void sendMessage(Message message) {
+        StartServer.clients.forEach(client -> {
+            try {
+                client.outputStream.writeObject(message);
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
-  }
-  
-  public void close() {
-      StartServer.clients.remove(this);
-  }
+    }
+
+    public void close() {
+        StartServer.clients.remove(this);
+    }
 }

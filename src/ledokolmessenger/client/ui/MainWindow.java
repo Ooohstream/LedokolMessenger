@@ -51,7 +51,8 @@ public class MainWindow extends javax.swing.JFrame {
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
+        
         new Thread(() -> {
             try {
                 while (true) {
@@ -63,6 +64,8 @@ public class MainWindow extends javax.swing.JFrame {
                 e.printStackTrace();
             }
         }).start();
+        
+        
 
         addWindowListener(new WindowAdapter() {
             @Override
