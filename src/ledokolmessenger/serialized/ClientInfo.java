@@ -22,11 +22,6 @@ public class ClientInfo extends SendableObject{
         this.is_online=is_online;
     }
     
-    public ClientInfo(String type, String clientName, String clientName2){
-        super(type);
-        this.clientName = clientName;
-        this.ClientName2 = clientName2;
-    }
     
     public String getClientName() {
         return clientName;

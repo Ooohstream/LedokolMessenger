@@ -36,10 +36,10 @@ public class Client implements Runnable{
       while (true) {
           SendableObject request = (SendableObject)inputStream.readObject();
           
-          if(request.getType().equals("addUser"))
+          if(request.getType().equals("addFriend"))
           {
               ClientInfo request1 = (ClientInfo)request;
-              ClientInfo foundUser = db.addUser(request1.getClientName());
+              ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
               
               if(foundUser==null)
                   outputStream.writeObject(new Respond("Respond", 402, "Пользователь не найден", java.time.LocalDateTime.now()));

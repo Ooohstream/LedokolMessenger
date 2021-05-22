@@ -88,7 +88,7 @@ public class Database {
         return listfr;
     }
 
-    public ClientInfo addUser(String id) throws SQLException {
+    public ClientInfo addUser(String id,String Myself) throws SQLException {
 
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;
@@ -102,7 +102,8 @@ public class Database {
             boolean is_online = resultSet.getBoolean("is_online");
             user = new ClientInfo("getUser", name, is_online);
             //System.out.println(user.getClientName());
-            //s ="INSERT into list_friends values ('" + 
+            s ="INSERT into list_friends values ('" + Myself +"', '" + id +"')";
+            st.execute(s);
         }
         return user;
     }
