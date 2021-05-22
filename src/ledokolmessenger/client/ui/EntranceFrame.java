@@ -257,7 +257,7 @@ public class EntranceFrame extends javax.swing.JFrame {
             Respond respond = (Respond) ois.readObject();
             if (respond.getRespondCode() == 200) {
                 System.out.println(respond.getRespond());
-                new MainWindow(clientSocket, oos, ois).setVisible(true);
+                new MainWindow(clientSocket, oos, ois, this.signInLoginField.getText()).setVisible(true);
                 this.setVisible(false);
             } else if (respond.getRespondCode() == 401) {
                 this.signInErrorLabel.setForeground(Color.red);
