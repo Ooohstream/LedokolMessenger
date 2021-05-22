@@ -26,3 +26,4 @@
 hs_err_pid*
 /dist/
 nbproject/project.properties
+build/built-jar.properties

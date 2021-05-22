@@ -8,8 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ledokolmessenger.serialized.ClientInfo;
-import ledokolmessenger.serialized.Message;
+import ledokolmessenger.serialized.*;
 
 /**
  *
@@ -35,6 +34,23 @@ public class Client implements Runnable{
     try {  
       outputStream.writeObject(db.getListFriends(this.clientName));
       while (true) {
+          SendableObject request = (SendableObject)inputStream.readObject();
+          
+          if(request.getType().equals("addUser"))
+          {
+              ClientInfo request1 = (ClientInfo)request;
+              ClientInfo foundUser = db.addUser(request1.getClientName());
+              
+              if(foundUser==null)
+                  outputStream.writeObject(new Respond("Respond", 402, "Пользователь не найден", java.time.LocalDateTime.now()));
+              else 
+                  outputStream.writeObject(new Respond("Respond", 202, "Пользователь "+ foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
+          }
+          
+          
+          
+          
+          
           
           Message message = (Message)inputStream.readObject();
           if (message.getMessage().equalsIgnoreCase("##session##end##")) {
