@@ -32,7 +32,6 @@ public class Client implements Runnable{
   @Override
   public void run() {   
     System.out.println(this.clientName +" подключился");
-    //String id=this.clientName;
     try {  
       outputStream.writeObject(db.getListFriends(this.clientName));
       while (true) {
