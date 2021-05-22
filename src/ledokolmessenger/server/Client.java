@@ -42,9 +42,9 @@ public class Client implements Runnable{
               ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
               
               if(foundUser==null)
-                  outputStream.writeObject(new Respond("Respond", 402, "Пользователь не найден", java.time.LocalDateTime.now()));
+                  outputStream.writeObject(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
               else 
-                  outputStream.writeObject(new Respond("Respond", 202, "Пользователь "+ foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
+                  outputStream.writeObject(new Respond("Respond", 200, "Пользователь "+ foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
           }
           
           
