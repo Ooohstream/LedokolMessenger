@@ -70,8 +70,8 @@ public class Database {
     public List<ClientInfo> getListFriends(String id) throws SQLException {
         List<ClientInfo> listfr = new ArrayList<ClientInfo>();
 
-        String s = "SELECT * from users where login != '" + id + "'";
-
+        //String s = "SELECT * from users where login != '" + id + "'";
+        String s = "SELECT * from users JOIN list_friends ON list_friends.user2 = login where list_friends.user1 = '"+id+"'";
         ResultSet resultSet = st.executeQuery(s);
         if (!resultSet.isBeforeFirst()) {
             return listfr;
@@ -102,9 +102,9 @@ public class Database {
             boolean is_online = resultSet.getBoolean("is_online");
             user = new ClientInfo("getUser", name, is_online);
             //System.out.println(user.getClientName());
-            s ="INSERT into list_friends values ('" + Myself +"', '" + id +"')";
-            st.execute(s);
         }
+        s ="INSERT into list_friends values ('" + Myself +"', '" + id +"')";
+        st.execute(s);
         return user;
     }
     

@@ -60,11 +60,9 @@ public class Client implements Runnable{
           Thread.sleep(100);
     }
   }
-  catch (IOException | ClassNotFoundException | InterruptedException ex){
+  catch (IOException | ClassNotFoundException | InterruptedException | SQLException ex){
           Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-      } catch (SQLException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      }
   finally {
     this.close();
   }
