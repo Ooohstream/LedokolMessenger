@@ -6,9 +6,14 @@ package ledokolmessenger.serialized;
  */
 public class ClientInfo extends SendableObject{
     private String clientName;
-    private String ClientName2;
     private String password;
     private boolean is_online;
+    
+    public ClientInfo(String type,String clientName)
+    {
+        super(type);
+        this.clientName = clientName;
+    }
    
     public ClientInfo(String type, String clientName, String password) {
         super(type);
