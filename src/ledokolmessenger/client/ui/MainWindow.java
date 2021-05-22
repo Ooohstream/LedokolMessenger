@@ -15,8 +15,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import ledokolmessenger.serialized.ClientInfo;
-import ledokolmessenger.serialized.Message;
+import ledokolmessenger.serialized.*;
 
 /**
  *
@@ -97,6 +96,7 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         friendNameTextField = new javax.swing.JTextField();
         addFriend = new javax.swing.JButton();
+        addFriendLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -189,6 +189,9 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        addFriendLabel.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        addFriendLabel.setText(" ");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -197,13 +200,16 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(friendNameTextField)
-                    .addComponent(addFriend, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+                    .addComponent(addFriend, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                    .addComponent(addFriendLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(114, Short.MAX_VALUE)
+                .addContainerGap(85, Short.MAX_VALUE)
+                .addComponent(addFriendLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(friendNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(addFriend)
@@ -266,7 +272,17 @@ public class MainWindow extends javax.swing.JFrame {
         try {
             ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
             outputStream.writeObject(newFriend);
-        } catch (IOException ex) {
+            Respond respond = (Respond) this.inputStream.readObject();
+            if(respond.getRespondCode() == 200)
+            {   this.addFriendLabel.setForeground(Color.GREEN);
+                this.addFriendLabel.setText(respond.getRespond());
+            }
+            else if(respond.getRespondCode() == 404)
+            {
+                this.addFriendLabel.setForeground(Color.RED);
+                this.addFriendLabel.setText(respond.getRespond());
+            }
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_addFriendActionPerformed
@@ -274,6 +290,7 @@ public class MainWindow extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane Tabs;
     private javax.swing.JButton addFriend;
+    private javax.swing.JLabel addFriendLabel;
     private javax.swing.JTextField friendNameTextField;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
