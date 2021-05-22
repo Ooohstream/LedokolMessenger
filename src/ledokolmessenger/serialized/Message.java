@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
  */
 public class Message extends SendableObject{
     private String message;
+    private String sender;
+    private String recipient;
     private LocalDateTime time;
 
     public Message(String type, String message, LocalDateTime time) {
