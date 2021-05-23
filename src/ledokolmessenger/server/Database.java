@@ -88,8 +88,9 @@ public class Database {
         return listfr;
     }
 
-     public ClientInfo addUser(String id,String Myself) throws SQLException {
+     public String addUser(String id,String Myself) throws SQLException {
 
+        
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;
         ResultSet resultSet = st.executeQuery(s);
@@ -103,9 +104,22 @@ public class Database {
             user = new ClientInfo("getUser", name, is_online);
             //System.out.println(user.getClientName());
         }
+        s ="SELECT * from list_friends where user1='"+ Myself +"' AND user2='"+ id +"'";
+        resultSet = st.executeQuery(s);
+        if (resultSet.isBeforeFirst()) {
+            return "#friendavailable#";
+        }
+        s ="SELECT * from list_friends where user1='"+ id +"' AND user2='"+ Myself +"'";
+        resultSet = st.executeQuery(s);
+        if (resultSet.isBeforeFirst()) {
+            return "#friendavailable#";
+        }
+        
         s ="INSERT into list_friends values ('" + Myself +"', '" + id +"')";
         st.execute(s);
-        return user;
+        s ="INSERT into list_friends values ('" + id +"', '" + Myself +"')";
+        st.execute(s);
+        return user.getClientName();
     }
     
 

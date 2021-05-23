@@ -40,15 +40,21 @@ public class Client implements Runnable {
 
                 if (request.getType().equals("addFriend")) {
                     ClientInfo request1 = (ClientInfo) request;
-                    ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
-
+                    String foundUser = db.addUser(request1.getClientName(), this.clientName);
+                    System.out.println(foundUser);
                     if (foundUser == null) {
                         outputStream.writeObject(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
-                    } else {
-                        outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
                     }
-                    continue;
+                    else if (foundUser.equals("#friendavailable#"))
+                    {
+                        outputStream.writeObject(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
+                    }
+                    else {
+                        outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser + " добавлен в друзья", java.time.LocalDateTime.now()));
+                    }
                 } 
+                
+                
                 else {
                     Message message = (Message) inputStream.readObject();
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
