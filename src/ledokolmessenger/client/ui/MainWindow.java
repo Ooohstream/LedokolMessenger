@@ -28,7 +28,7 @@ public class MainWindow extends javax.swing.JFrame {
     private ObjectOutputStream outputStream;
     private Thread sender;
 
-    public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) {
+    public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) throws IOException, ClassNotFoundException {
         initComponents();
         this.jScrollPane1.getColumnHeader().setVisible(false);
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -54,9 +54,21 @@ public class MainWindow extends javax.swing.JFrame {
         sender = new Thread(() -> {
             try {
                 while (true) {
-                        Message message = (Message) inputStream.readObject();
+                    SendableObject respond = (SendableObject) this.inputStream.readObject();
+                    if (respond.getType().equals("Respond")) {
+                        Respond respond1 = (Respond) respond;
+                        if (respond1.getRespondCode() == 200) {
+                            this.addFriendLabel.setForeground(Color.GREEN);
+                            this.addFriendLabel.setText(respond1.getRespond());
+                        } else if (respond1.getRespondCode() == 404) {
+                            this.addFriendLabel.setForeground(Color.RED);
+                            this.addFriendLabel.setText(respond1.getRespond());
+                        }
+                    } else if (respond.getType().equals("Message")) {
+                        Message message = (Message) respond;
                         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
                         model.addRow(new Object[]{message.getMessage(), " "});
+                    }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -270,19 +282,11 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void addFriendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFriendActionPerformed
+        ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
         try {
-                ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
-                outputStream.writeObject(newFriend);
-                Respond respond = (Respond) this.inputStream.readObject();
-                System.out.print(respond.getRespond());
-                if (respond.getRespondCode() == 200) {
-                    this.addFriendLabel.setForeground(Color.GREEN);
-                    this.addFriendLabel.setText(respond.getRespond());
-                } else if (respond.getRespondCode() == 404) {
-                    this.addFriendLabel.setForeground(Color.RED);
-                    this.addFriendLabel.setText(respond.getRespond());
-                }
-        } catch (IOException | ClassNotFoundException ex) {
+            outputStream.writeObject(newFriend);
+            //Respond respond = (Respond) this.inputStream.readObject();
+        } catch (IOException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_addFriendActionPerformed
