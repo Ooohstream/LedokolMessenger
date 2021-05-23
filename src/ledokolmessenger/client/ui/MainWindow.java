@@ -1,5 +1,6 @@
 package ledokolmessenger.client.ui;
 
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -7,14 +8,19 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import ledokolmessenger.serialized.*;
+import ledokolmessenger.client.utillities.WordWrapCellRenderer;
 
 /**
  *
@@ -26,14 +32,61 @@ public class MainWindow extends javax.swing.JFrame {
     private final Socket clientSocket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-    private Thread sender;
+    private final Thread sender;
+    private Map<String, JScrollPane> scrollPanes = new HashMap<>();
+
+    private JScrollPane getMyMessageTable(String i) {
+        JScrollPane jScrollPane = new JScrollPane();
+
+        jScrollPane.setBorder(null);
+
+        JTable jTable = new JTable();
+
+        jTable.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jTable.setFont(new java.awt.Font("Verdana", 0, 14));
+
+        jTable.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "", ""
+                }
+        ) {
+            boolean[] canEdit = new boolean[]{
+                false, false
+            };
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+
+        jTable.setFocusable(false);
+
+        jTable.setGridColor(new java.awt.Color(255, 255, 255));
+
+        jTable.setSelectionBackground(new java.awt.Color(255, 255, 255));
+
+        jTable.setShowHorizontalLines(false);
+
+        jTable.setShowVerticalLines(false);
+
+        jTable.getTableHeader().setResizingAllowed(false);
+        jTable.getTableHeader().setReorderingAllowed(false);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        jTable.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
+        jTable.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+
+        jScrollPane.setViewportView(jTable);
+
+        return jScrollPane;
+    }
 
     public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) throws IOException, ClassNotFoundException {
         initComponents();
-        this.jScrollPane1.getColumnHeader().setVisible(false);
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        this.jTable2.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         this.clientSocket = clientSocket;
         this.clientName = clientName;
         this.jLabel1.setText(this.clientName);
@@ -46,6 +99,9 @@ public class MainWindow extends javax.swing.JFrame {
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
             friends.forEach(friend -> {
                 model.addElement(friend.getClientName());
+                JScrollPane newScrollPane = this.getMyMessageTable(friend.getClientName());
+                this.messagePane.add(newScrollPane, friend.getClientName());
+                this.scrollPanes.put(friend.getClientName(), newScrollPane);
             });
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -66,8 +122,11 @@ public class MainWindow extends javax.swing.JFrame {
                         }
                     } else if (respond.getType().equals("Message")) {
                         Message message = (Message) respond;
-                        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                        JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+                        JTable jTable = (JTable) scrollPane.getViewport().getView();
+                        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
                         model.addRow(new Object[]{message.getMessage(), " "});
+                        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -95,13 +154,11 @@ public class MainWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        Tabs = new javax.swing.JTabbedPane();
+        mainMenu = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -110,38 +167,10 @@ public class MainWindow extends javax.swing.JFrame {
         friendNameTextField = new javax.swing.JTextField();
         addFriend = new javax.swing.JButton();
         addFriendLabel = new javax.swing.JLabel();
+        messagePane = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
-
-        jScrollPane1.setBorder(null);
-
-        jTable2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jTable2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "", ""
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jTable2.setFocusable(false);
-        jTable2.setGridColor(new java.awt.Color(255, 255, 255));
-        jTable2.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        jTable2.setShowHorizontalLines(false);
-        jTable2.setShowVerticalLines(false);
-        jTable2.getTableHeader().setResizingAllowed(false);
-        jTable2.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(jTable2);
 
         jTextField1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jTextField1.setText("jTextField1");
@@ -177,16 +206,21 @@ public class MainWindow extends javax.swing.JFrame {
         );
 
         jList1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jList1ValueChanged(evt);
+            }
+        });
         jScrollPane2.setViewportView(jList1);
 
-        Tabs.addTab("Друзья", jScrollPane2);
+        mainMenu.addTab("Друзья", jScrollPane2);
 
         jScrollPane3.setBorder(null);
 
         jList2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jScrollPane3.setViewportView(jList2);
 
-        Tabs.addTab("Групповые чаты", jScrollPane3);
+        mainMenu.addTab("Групповые чаты", jScrollPane3);
 
         jPanel2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jPanel2.setMaximumSize(new java.awt.Dimension(100, 100));
@@ -220,7 +254,7 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(85, Short.MAX_VALUE)
+                .addContainerGap(131, Short.MAX_VALUE)
                 .addComponent(addFriendLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(friendNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -229,7 +263,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(115, 115, 115))
         );
 
-        Tabs.addTab("Добавить друга", jPanel2);
+        mainMenu.addTab("Добавить друга", jPanel2);
+
+        messagePane.setLayout(new java.awt.CardLayout());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -238,7 +274,7 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Tabs, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                    .addComponent(mainMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -246,7 +282,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(messagePane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -255,7 +291,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(messagePane, javax.swing.GroupLayout.PREFERRED_SIZE, 410, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -263,7 +299,7 @@ public class MainWindow extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Tabs)))
+                        .addComponent(mainMenu)))
                 .addContainerGap())
         );
 
@@ -272,8 +308,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         if (!this.jTextField1.getText().trim().isEmpty()) {
-            Message message = new Message("Message", this.jTextField1.getText(), java.time.LocalDateTime.now());
             try {
+                Message message = new Message("Message", this.jTextField1.getText(), java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -285,14 +321,20 @@ public class MainWindow extends javax.swing.JFrame {
         ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
         try {
             outputStream.writeObject(newFriend);
-            //Respond respond = (Respond) this.inputStream.readObject();
         } catch (IOException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_addFriendActionPerformed
 
+    private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
+        if (!evt.getValueIsAdjusting()) {
+            CardLayout l = (CardLayout) this.messagePane.getLayout();
+            l.show(this.messagePane, this.jList1.getSelectedValue());
+            System.out.println();
+        }
+    }//GEN-LAST:event_jList1ValueChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTabbedPane Tabs;
     private javax.swing.JButton addFriend;
     private javax.swing.JLabel addFriendLabel;
     private javax.swing.JTextField friendNameTextField;
@@ -302,10 +344,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JList<String> jList2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTabbedPane mainMenu;
+    private javax.swing.JPanel messagePane;
     // End of variables declaration//GEN-END:variables
 }
