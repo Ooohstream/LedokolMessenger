@@ -24,8 +24,9 @@ public class MainWindow extends javax.swing.JFrame {
 
     String clientName;
     private final Socket clientSocket;
-    ObjectInputStream inputStream;
-    ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+    private Thread sender;
 
     public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) throws IOException, ClassNotFoundException {
         initComponents();
@@ -50,7 +51,7 @@ public class MainWindow extends javax.swing.JFrame {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        new Thread(() -> {
+        sender = new Thread(() -> {
             try {
                 while (true) {
                     SendableObject respond = (SendableObject) this.inputStream.readObject();
@@ -74,7 +75,8 @@ public class MainWindow extends javax.swing.JFrame {
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+        sender.start();
 
         addWindowListener(new WindowAdapter() {
             @Override
