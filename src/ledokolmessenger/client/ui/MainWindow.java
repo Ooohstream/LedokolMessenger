@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,8 +24,9 @@ public class MainWindow extends javax.swing.JFrame {
 
     String clientName;
     private final Socket clientSocket;
-    ObjectInputStream inputStream;
-    ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+    private Thread sender;
 
     public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) {
         initComponents();
@@ -51,17 +51,18 @@ public class MainWindow extends javax.swing.JFrame {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        new Thread(() -> {
+        sender = new Thread(() -> {
             try {
                 while (true) {
-                    Message message = (Message) inputStream.readObject();
-                    DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
-                    model.addRow(new Object[]{message.getMessage(), " "});
+                        Message message = (Message) inputStream.readObject();
+                        DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+                        model.addRow(new Object[]{message.getMessage(), " "});
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+        sender.start();
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -270,18 +271,17 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void addFriendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFriendActionPerformed
         try {
-            ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
-            outputStream.writeObject(newFriend);
-            Respond respond = (Respond) this.inputStream.readObject();
-            if(respond.getRespondCode() == 200)
-            {   this.addFriendLabel.setForeground(Color.GREEN);
-                this.addFriendLabel.setText(respond.getRespond());
-            }
-            else if(respond.getRespondCode() == 404)
-            {
-                this.addFriendLabel.setForeground(Color.RED);
-                this.addFriendLabel.setText(respond.getRespond());
-            }
+                ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
+                outputStream.writeObject(newFriend);
+                Respond respond = (Respond) this.inputStream.readObject();
+                System.out.print(respond.getRespond());
+                if (respond.getRespondCode() == 200) {
+                    this.addFriendLabel.setForeground(Color.GREEN);
+                    this.addFriendLabel.setText(respond.getRespond());
+                } else if (respond.getRespondCode() == 404) {
+                    this.addFriendLabel.setForeground(Color.RED);
+                    this.addFriendLabel.setText(respond.getRespond());
+                }
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
