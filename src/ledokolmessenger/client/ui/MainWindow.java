@@ -120,6 +120,8 @@ public class MainWindow extends javax.swing.JFrame {
                             this.addFriendLabel.setForeground(Color.RED);
                             this.addFriendLabel.setText(respond1.getRespond());
                         }
+                        
+                        
                     } else if (respond.getType().equals("Message")) {
                         Message message = (Message) respond;
                         JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());

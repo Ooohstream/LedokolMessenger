@@ -43,17 +43,24 @@ public class Client implements Runnable {
                     System.out.println(foundUser);
                     if (foundUser == null) {
                         outputStream.writeObject(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
-                    }
-                    else if (foundUser.equals("#friendavailable#"))
-                    {
+                    } else if (foundUser.equals("#friendavailable#")) {
                         outputStream.writeObject(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
-                    }
-                    else {
+                    } else {
                         outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser + " добавлен в друзья", java.time.LocalDateTime.now()));
                     }
-                } 
+                }
+                
+                
+                else if(request.getType().equals("getOldMessages"))
+                {
+                   ClientInfo request1 = (ClientInfo) request;
+                   List<Message> oldMessages=db.getOldMessages(this.clientName, request1.getClientName());
+                   outputStream.writeObject(oldMessages);
+                }
+                
+                
                 else {
-                    Message message = (Message) request;
+                    Message message = (Message) request; //inputStream.readObject();
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
                     }
