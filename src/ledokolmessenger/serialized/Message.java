@@ -8,13 +8,15 @@ import java.time.LocalDateTime;
  */
 public class Message extends SendableObject{
     private String message;
-    //private String sender;
-    //private String recipient;
+    private String sender;
+    private String recipient;
     private LocalDateTime time;
 
-    public Message(String type, String message, LocalDateTime time) {
+    public Message(String type, String message,String sender, String recipient, LocalDateTime time) {
         super(type);
         this.message = message;
+        this.sender=sender;
+        this.recipient=recipient;
         this.time = time;
     }
 
@@ -25,5 +27,14 @@ public class Message extends SendableObject{
     public LocalDateTime getTime() {
         return time;
     }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+ 
     
 }
