@@ -120,14 +120,13 @@ public class MainWindow extends javax.swing.JFrame {
                             this.addFriendLabel.setForeground(Color.RED);
                             this.addFriendLabel.setText(respond1.getRespond());
                         }
-                        
-                        
+
                     } else if (respond.getType().equals("Message")) {
                         Message message = (Message) respond;
                         JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
                         JTable jTable = (JTable) scrollPane.getViewport().getView();
                         DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-                        model.addRow(new Object[]{message.getMessage(), " "});
+                        model.addRow(new Object[]{" ", message.getMessage()});
                         scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
                     }
                 }
@@ -143,7 +142,7 @@ public class MainWindow extends javax.swing.JFrame {
                 super.windowClosing(e);
                 try {
                     try (clientSocket; outputStream; inputStream) {
-                        outputStream.writeObject(new Message("Message", "##session##end##",null,null, java.time.LocalDateTime.now()));
+                        outputStream.writeObject(new Message("Message", "##session##end##", null, null, java.time.LocalDateTime.now()));
                     }
                 } catch (IOException exc) {
                     System.out.println("Closed");
@@ -311,8 +310,12 @@ public class MainWindow extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         if (!this.jTextField1.getText().trim().isEmpty()) {
             try {
-                Message message = new Message("Message", this.jTextField1.getText(),this.clientName,this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
+                Message message = new Message("Message", this.jTextField1.getText(), this.clientName, this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
+                JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+                JTable jTable = (JTable) scrollPane.getViewport().getView();
+                DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+                model.addRow(new Object[]{message.getMessage(), " "});
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
