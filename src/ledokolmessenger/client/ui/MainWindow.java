@@ -126,6 +126,8 @@ public class MainWindow extends javax.swing.JFrame {
                         //JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
                         JScrollPane scrollPane = scrollPanes.get(message.getSender());
                         JTable jTable = (JTable) scrollPane.getViewport().getView();
+                        System.out.println(message.getRecipient() + " | " + message.getSender());
+                        System.out.println(this.jList1.getSelectedValue());
                         DefaultTableModel model = (DefaultTableModel) jTable.getModel();
                         model.addRow(new Object[]{" ", message.getMessage()});
                         scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
@@ -314,6 +316,8 @@ public class MainWindow extends javax.swing.JFrame {
                 Message message = new Message("Message", this.jTextField1.getText(), this.clientName, this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
                 JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+                System.out.println(message.getRecipient() + " | " + message.getSender());
+                System.out.println(this.jList1.getSelectedValue());
                 JTable jTable = (JTable) scrollPane.getViewport().getView();
                 DefaultTableModel model = (DefaultTableModel) jTable.getModel();
                 model.addRow(new Object[]{message.getMessage(), " "});
@@ -336,7 +340,6 @@ public class MainWindow extends javax.swing.JFrame {
         if (!evt.getValueIsAdjusting()) {
             CardLayout l = (CardLayout) this.messagePane.getLayout();
             l.show(this.messagePane, this.jList1.getSelectedValue());
-            System.out.println();
         }
     }//GEN-LAST:event_jList1ValueChanged
 
