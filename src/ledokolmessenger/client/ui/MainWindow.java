@@ -123,7 +123,8 @@ public class MainWindow extends javax.swing.JFrame {
 
                     } else if (respond.getType().equals("Message")) {
                         Message message = (Message) respond;
-                        JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+                        //JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+                        JScrollPane scrollPane = scrollPanes.get(message.getSender());
                         JTable jTable = (JTable) scrollPane.getViewport().getView();
                         DefaultTableModel model = (DefaultTableModel) jTable.getModel();
                         model.addRow(new Object[]{" ", message.getMessage()});

@@ -34,7 +34,7 @@ public class Client implements Runnable {
     public String getClientName() {
         return clientName;
     }
-    
+
     @Override
     public void run() {
         System.out.println(this.clientName + " подключился");
@@ -53,18 +53,11 @@ public class Client implements Runnable {
                     } else {
                         outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser + " добавлен в друзья", java.time.LocalDateTime.now()));
                     }
-                }
-                
-                
-                else if(request.getType().equals("getOldMessages"))
-                {
-                   ClientInfo request1 = (ClientInfo) request;
-                   List<Message> oldMessages=db.getOldMessages(this.clientName, request1.getClientName());
-                   outputStream.writeObject(oldMessages);
-                }
-                
-                
-                else if(request.getType().equals("Message")) {
+                } else if (request.getType().equals("getOldMessages")) {
+                    ClientInfo request1 = (ClientInfo) request;
+                    List<Message> oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
+                    outputStream.writeObject(oldMessages);
+                } else if (request.getType().equals("Message")) {
                     Message message = (Message) request; //inputStream.readObject();
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
@@ -80,14 +73,17 @@ public class Client implements Runnable {
     }
 
     public void sendMessage(Message message) {
-        
-        Client client =(Client) StartServer.getNamePass().get(message.getRecipient());
-            try {
-                db.sendMessage(message);
+
+        Client client = (Client) StartServer.getNamePass().get(message.getRecipient());
+
+        try {
+            db.sendMessage(message);
+            if (client != null) {
                 client.outputStream.writeObject(message);
-            } catch (IOException | SQLException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } catch (IOException | SQLException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void close() {
