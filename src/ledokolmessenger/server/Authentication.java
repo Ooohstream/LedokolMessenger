@@ -45,7 +45,6 @@ public class Authentication implements Runnable{
                     if("OK".equals(mess)){
                             outputStream.writeObject(new Respond("Respond", 200, "OK", java.time.LocalDateTime.now()));
                             Client newClient = new Client(this.userSocket, this.outputStream, this.inputStream, authMessage.getClientName(),db);
-                            StartServer.clients.add(newClient);
                             new Thread(newClient).start();
                     }
                     else
