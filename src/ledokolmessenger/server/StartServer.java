@@ -21,8 +21,8 @@ import java.util.logging.Logger;
 public class StartServer {
 
     private static final Integer PORT = 3443;
-    public static final List<Client> clients = new ArrayList<>();
-    public static final Map<String, String> namePass = new HashMap<>();
+    //public static final List<Client> clients = new ArrayList<>();
+    private static final Map<String, Client> namePass = new HashMap<>();
     
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         ServerSocket serverSocket = null;
@@ -55,5 +55,14 @@ public class StartServer {
             System.out.println("Сервер был остановлен");
         }
         
+    }
+
+    public static Map<String, Client> getNamePass() {
+        return namePass;
+    }
+    
+    public static void addClient(Client client)
+    {
+        namePass.put(client.getClientName(), client);
     }
 }

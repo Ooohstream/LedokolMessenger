@@ -143,7 +143,7 @@ public class MainWindow extends javax.swing.JFrame {
                 super.windowClosing(e);
                 try {
                     try (clientSocket; outputStream; inputStream) {
-                        outputStream.writeObject(new Message("Message", "##session##end##", java.time.LocalDateTime.now()));
+                        outputStream.writeObject(new Message("Message", "##session##end##",null,null, java.time.LocalDateTime.now()));
                     }
                 } catch (IOException exc) {
                     System.out.println("Closed");
@@ -311,7 +311,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         if (!this.jTextField1.getText().trim().isEmpty()) {
             try {
-                Message message = new Message("Message", this.jTextField1.getText(), java.time.LocalDateTime.now());
+                Message message = new Message("Message", this.jTextField1.getText(),this.clientName,this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);

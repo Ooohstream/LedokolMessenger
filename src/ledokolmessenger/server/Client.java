@@ -28,8 +28,13 @@ public class Client implements Runnable {
         this.inputStream = inputStream;
         this.clientName = clientName;
         this.db = db;
+        StartServer.addClient(this);
     }
 
+    public String getClientName() {
+        return clientName;
+    }
+    
     @Override
     public void run() {
         System.out.println(this.clientName + " подключился");
@@ -59,7 +64,7 @@ public class Client implements Runnable {
                 }
                 
                 
-                else {
+                else if(request.getType().equals("Message")) {
                     Message message = (Message) request; //inputStream.readObject();
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
@@ -75,16 +80,17 @@ public class Client implements Runnable {
     }
 
     public void sendMessage(Message message) {
-        StartServer.clients.forEach(client -> {
+        
+        Client client =(Client) StartServer.getNamePass().get(message.getRecipient());
             try {
+                db.sendMessage(message);
                 client.outputStream.writeObject(message);
-            } catch (IOException ex) {
+            } catch (IOException | SQLException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
-        });
     }
 
     public void close() {
-        StartServer.clients.remove(this);
+        StartServer.getNamePass().remove(this.clientName);
     }
 }
