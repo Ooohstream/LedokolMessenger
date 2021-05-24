@@ -35,7 +35,7 @@ public class MainWindow extends javax.swing.JFrame {
     private final Thread sender;
     private Map<String, JScrollPane> scrollPanes = new HashMap<>();
 
-    private JScrollPane getMyMessageTable(String i) {
+    private JScrollPane getMyMessageTable() {
         JScrollPane jScrollPane = new JScrollPane();
 
         jScrollPane.setBorder(null);
