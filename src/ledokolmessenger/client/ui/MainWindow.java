@@ -99,7 +99,7 @@ public class MainWindow extends javax.swing.JFrame {
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
             friends.forEach(friend -> {
                 model.addElement(friend.getClientName());
-                JScrollPane newScrollPane = this.getMyMessageTable(friend.getClientName());
+                JScrollPane newScrollPane = this.getMyMessageTable();
                 this.messagePane.add(newScrollPane, friend.getClientName());
                 this.scrollPanes.put(friend.getClientName(), newScrollPane);
             });
