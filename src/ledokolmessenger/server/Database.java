@@ -93,7 +93,25 @@ public class Database {
         return listfr;
     }
 
-    public String addUser(String id, String Myself) throws SQLException {
+    public ClientInfo getUser(String id) throws SQLException {
+        ClientInfo user = null;
+
+        String s = "SELECT * from users where login = '" + id + "'";
+        ResultSet resultSet = st.executeQuery(s);
+        if (!resultSet.isBeforeFirst()) {
+            return null;
+        }
+
+        while (resultSet.next()) {
+            String name = resultSet.getString("login");
+            boolean is_online = resultSet.getBoolean("is_online");
+            user = new ClientInfo("Friend", name, is_online);
+            System.out.println(user.getClientName());
+        }
+        return user;
+    }
+
+    public ClientInfo addUser(String id, String Myself) throws SQLException {
 
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;
@@ -111,19 +129,19 @@ public class Database {
         s = "SELECT * from list_friends where user1='" + Myself + "' AND user2='" + id + "'";
         resultSet = st.executeQuery(s);
         if (resultSet.isBeforeFirst()) {
-            return "#friendavailable#";
+            return new ClientInfo("#friendavailable#",user.getClientName());
         }
         s = "SELECT * from list_friends where user1='" + id + "' AND user2='" + Myself + "'";
         resultSet = st.executeQuery(s);
         if (resultSet.isBeforeFirst()) {
-            return "#friendavailable#";
+            return new ClientInfo("#friendavailable#",user.getClientName());
         }
 
         s = "INSERT into list_friends values ('" + Myself + "', '" + id + "')";
         st.execute(s);
         s = "INSERT into list_friends values ('" + id + "', '" + Myself + "')";
         st.execute(s);
-        return user.getClientName();
+        return user;
     }
 
     public List<Message> getOldMessages(String myLogin, String userLogin) throws SQLException {
@@ -148,9 +166,9 @@ public class Database {
             if (ts != null) {
                 date_create = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts.getTime()), ZoneOffset.UTC);
             }
-
+            
             Message message = new Message("Message", content, sender, recipient, date_create);
-            //System.out.println(user.getClientName());
+            System.out.println(message.getMessage()+" ) "+message.getSender()+"|"+message.getRecipient()+"|"+message.getTime());
             oldMessages.add(message);
         }
 
@@ -165,7 +183,7 @@ public class Database {
                 + "VALUES ( '" + mess.getSender() + "', '" + mess.getRecipient() + "', '" + mess.getMessage() + "', '" + mess.getTime() + "' ) ";
 
         st.execute(s);
-        
+
         return mess;
     }
 
