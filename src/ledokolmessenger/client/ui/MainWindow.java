@@ -37,14 +37,7 @@ public class MainWindow extends javax.swing.JFrame {
     private ObjectOutputStream outputStream;
     private final ReceiverThread receiverThread;
     private Map<String, JScrollPane> scrollPanes = new HashMap<>();
-<<<<<<< HEAD
-<<<<<<< HEAD
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
-    Exchanger<SendableObject> exchanger = new Exchanger();
-=======
->>>>>>> parent of 4751ba9 (old mess)
-=======
->>>>>>> parent of 4751ba9 (old mess)
 
     private JScrollPane getMyMessageTable() {
         JScrollPane jScrollPane = new JScrollPane();
@@ -118,10 +111,6 @@ public class MainWindow extends javax.swing.JFrame {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-<<<<<<< HEAD
-        receiverThread = new ReceiverThread(this.inputStream, exchanger);
-        receiverThread.start();
-=======
         sender = new Thread(() -> {
             try {
                 while (true) {
@@ -131,10 +120,35 @@ public class MainWindow extends javax.swing.JFrame {
                         if (respond1.getRespondCode() == 200) {
                             this.addFriendLabel.setForeground(Color.GREEN);
                             this.addFriendLabel.setText(respond1.getRespond());
+//                            DefaultListModel<String> model = new DefaultListModel<>();
+//                            ClientInfo friend = (ClientInfo) inputStream.readObject();
+//                            model.addElement(friend.getClientName());
+//                            JScrollPane newScrollPane = this.getMyMessageTable();
+//                            this.messagePane.add(newScrollPane, friend.getClientName());
+//                            this.scrollPanes.put(friend.getClientName(), newScrollPane);
+
                         } else if (respond1.getRespondCode() == 404) {
                             this.addFriendLabel.setForeground(Color.RED);
                             this.addFriendLabel.setText(respond1.getRespond());
                         }
+
+                    } else if (respond.getType().equals("OldMessages")) {
+                        List<Message> oldMessages = (List<Message>) this.inputStream.readObject();
+                        //List<Message> oldMessages = (List<Message>) respond;
+                        oldMessages.forEach(message -> {
+                            System.out.println(message.getMessage() + " ) " + message.getSender() + "|" + message.getRecipient() + "|" + message.getTime());
+                            JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+                            JTable jTable = (JTable) scrollPane.getViewport().getView();
+                            System.out.println(message.getRecipient() + " | " + message.getSender());
+                            System.out.println(this.jList1.getSelectedValue());
+                            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+                            if (message.getSender().equals(this.jList1.getSelectedValue())) {
+                                model.addRow(new Object[]{" ", message.getMessage()});
+                            } else {
+                                model.addRow(new Object[]{message.getMessage(), " "});
+                            }
+                            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
+                        });
 
                     } else if (respond.getType().equals("Message")) {
                         Message message = (Message) respond;
@@ -153,7 +167,6 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         sender.start();
->>>>>>> parent of 4751ba9 (old mess)
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -356,8 +369,6 @@ public class MainWindow extends javax.swing.JFrame {
         if (!evt.getValueIsAdjusting()) {
             CardLayout l = (CardLayout) this.messagePane.getLayout();
             l.show(this.messagePane, this.jList1.getSelectedValue());
-<<<<<<< HEAD
-<<<<<<< HEAD
             try {
                 if (this.gotOldMessages.get(this.jList1.getSelectedValue()) == null) {
                     ClientInfo user = new ClientInfo("getOldMessages", this.jList1.getSelectedValue());
@@ -368,10 +379,6 @@ public class MainWindow extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
-=======
->>>>>>> parent of 4751ba9 (old mess)
-=======
->>>>>>> parent of 4751ba9 (old mess)
         }
     }//GEN-LAST:event_jList1ValueChanged
 

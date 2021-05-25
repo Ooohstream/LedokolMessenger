@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,15 +47,13 @@ public class Client implements Runnable {
                 
                 if (request.getType().equals("addFriend")) {
                     ClientInfo request1 = (ClientInfo) request;
-                    String foundUser = db.addUser(request1.getClientName(), this.clientName);
-                    System.out.println(foundUser);
+                    ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
+                    System.out.println(foundUser.getClientName());
                     if (foundUser == null) {
                         outputStream.writeObject(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
-                    } else if (foundUser.equals("#friendavailable#")) {
+                    } else if (foundUser.getType().equals("#friendavailable#")) {
                         outputStream.writeObject(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
                     } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
                         outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
                         //outputStream.writeObject(foundUser);
                     }   
@@ -66,21 +65,10 @@ public class Client implements Runnable {
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
                     if(oldMessages != null)
                         outputStream.writeObject(oldMessages);  
-                } 
-                
-                
-                else if (request.getType().equals("Message")) {
-=======
-=======
->>>>>>> parent of 4751ba9 (old mess)
-                        outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser + " добавлен в друзья", java.time.LocalDateTime.now()));
-                    }
-                } else if (request.getType().equals("getOldMessages")) {
-                    ClientInfo request1 = (ClientInfo) request;
-                    List<Message> oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
-                    outputStream.writeObject(oldMessages);
+                }   
+                    
+                    
                 } else if (request.getType().equals("Message")) {
->>>>>>> parent of 4751ba9 (old mess)
                     Message message = (Message) request; //inputStream.readObject();
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
