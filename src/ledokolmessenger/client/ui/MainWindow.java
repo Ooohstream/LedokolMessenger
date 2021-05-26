@@ -2,6 +2,7 @@ package ledokolmessenger.client.ui;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.event.AdjustmentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Exchanger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -19,6 +21,7 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import ledokolmessenger.client.ReceiverThread;
 import ledokolmessenger.serialized.*;
 import ledokolmessenger.client.utillities.WordWrapCellRenderer;
 
@@ -32,9 +35,10 @@ public class MainWindow extends javax.swing.JFrame {
     private final Socket clientSocket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-    private final Thread sender;
+    private final ReceiverThread receiverThread;
     private Map<String, JScrollPane> scrollPanes = new HashMap<>();
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
+    Exchanger<SendableObject> exchanger = new Exchanger();
 
     private JScrollPane getMyMessageTable() {
         JScrollPane jScrollPane = new JScrollPane();
@@ -108,57 +112,8 @@ public class MainWindow extends javax.swing.JFrame {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        sender = new Thread(() -> {
-            try {
-                while (true) {
-                    SendableObject respond = (SendableObject) this.inputStream.readObject();
-                    if (respond.getType().equals("Respond")) {
-                        Respond respond1 = (Respond) respond;
-                        if (respond1.getRespondCode() == 200) {
-                            this.addFriendLabel.setForeground(Color.GREEN);
-                            this.addFriendLabel.setText(respond1.getRespond());
-
-                        } else if (respond1.getRespondCode() == 404) {
-                            this.addFriendLabel.setForeground(Color.RED);
-                            this.addFriendLabel.setText(respond1.getRespond());
-                        }
-
-                    } else if (respond.getType().equals("OldMessages")) {
-                        List<Message> oldMessages = (List<Message>) this.inputStream.readObject();
-                        //List<Message> oldMessages = (List<Message>) respond;
-                        oldMessages.forEach(message -> {
-                            //System.out.println(message.getMessage() + " ) " + message.getSender() + "|" + message.getRecipient() + "|" + message.getTime());
-                            JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
-                            JTable jTable = (JTable) scrollPane.getViewport().getView();
-                            //System.out.println(message.getRecipient() + " | " + message.getSender());
-                            //System.out.println(this.jList1.getSelectedValue());
-                            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-                            if (message.getSender().equals(this.jList1.getSelectedValue())) {
-                                model.addRow(new Object[]{" ", message.getMessage()});
-                            } else {
-                                model.addRow(new Object[]{message.getMessage(), " "});
-                            }
-                            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
-                        });
-
-                        
-                        
-                    } else if (respond.getType().equals("Message")) {
-                        Message message = (Message) respond;
-                        JScrollPane scrollPane = scrollPanes.get(message.getSender());
-                        JTable jTable = (JTable) scrollPane.getViewport().getView();
-                        System.out.println(message.getRecipient() + " | " + message.getSender());
-                        System.out.println(this.jList1.getSelectedValue());
-                        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-                        model.addRow(new Object[]{" ", message.getMessage()});
-                        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
-                    }
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        });
-        sender.start();
+        receiverThread = new ReceiverThread(this.inputStream, exchanger);
+        receiverThread.start();
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -174,6 +129,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
     }
+    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -337,11 +293,10 @@ public class MainWindow extends javax.swing.JFrame {
                 Message message = new Message("Message", this.jTextField1.getText(), this.clientName, this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
                 JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
-                System.out.println(message.getRecipient() + " | " + message.getSender());
-                System.out.println(this.jList1.getSelectedValue());
                 JTable jTable = (JTable) scrollPane.getViewport().getView();
                 DefaultTableModel model = (DefaultTableModel) jTable.getModel();
                 model.addRow(new Object[]{message.getMessage(), " "});
+                this.jTextField1.setText(" ");
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -362,10 +317,11 @@ public class MainWindow extends javax.swing.JFrame {
             CardLayout l = (CardLayout) this.messagePane.getLayout();
             l.show(this.messagePane, this.jList1.getSelectedValue());
             try {
-                if (this.gotOldMessages.get(this.jList1.getSelectedValue())==null) {
+                if (this.gotOldMessages.get(this.jList1.getSelectedValue()) == null) {
                     ClientInfo user = new ClientInfo("getOldMessages", this.jList1.getSelectedValue());
                     outputStream.writeObject(user);
                     this.gotOldMessages.put(this.jList1.getSelectedValue(), true);
+//                    scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().removeAdjustmentListener(scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().getAdjustmentListeners()[0]);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
