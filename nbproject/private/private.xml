@@ -3,6 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/server/Client.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/serialized/ClientInfo.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/server/ConnectionInfo.java</file>
@@ -16,6 +17,21 @@
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/ui/EntranceFrame.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/server/Authentication.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/serialized/SendableObject.java</file>
+=======
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/serialized/Message.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/serialized/Respond.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/client/StartClient.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/serialized/SendableObject.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/serialized/ClientInfo.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/server/StartServer.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/client/ui/EntranceFrame.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/client/utillities/WordWrapCellRenderer.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/client/ui/MainWindow.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/server/Database.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/server/Authentication.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/server/Client.java</file>
+            <file>file:/C:/Users/OMEN/Documents/NetBeansProjects/LedokolMessenger/LedokolMessenger/src/ledokolmessenger/LedokolMessenger.java</file>
+>>>>>>> parent of 4751ba9 (old mess)
         </group>
     </open-files>
 </project-private>
