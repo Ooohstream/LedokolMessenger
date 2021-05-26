@@ -38,8 +38,11 @@ public class MainWindow extends javax.swing.JFrame {
     private final ReceiverThread receiverThread;
     private Map<String, JScrollPane> scrollPanes = new HashMap<>();
 <<<<<<< HEAD
+<<<<<<< HEAD
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
     Exchanger<SendableObject> exchanger = new Exchanger();
+=======
+>>>>>>> parent of 4751ba9 (old mess)
 =======
 >>>>>>> parent of 4751ba9 (old mess)
 
@@ -354,6 +357,7 @@ public class MainWindow extends javax.swing.JFrame {
             CardLayout l = (CardLayout) this.messagePane.getLayout();
             l.show(this.messagePane, this.jList1.getSelectedValue());
 <<<<<<< HEAD
+<<<<<<< HEAD
             try {
                 if (this.gotOldMessages.get(this.jList1.getSelectedValue()) == null) {
                     ClientInfo user = new ClientInfo("getOldMessages", this.jList1.getSelectedValue());
@@ -364,6 +368,8 @@ public class MainWindow extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
+=======
+>>>>>>> parent of 4751ba9 (old mess)
 =======
 >>>>>>> parent of 4751ba9 (old mess)
         }

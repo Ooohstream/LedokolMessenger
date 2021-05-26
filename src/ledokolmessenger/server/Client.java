@@ -54,6 +54,7 @@ public class Client implements Runnable {
                         outputStream.writeObject(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
                     } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
                         outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
                         //outputStream.writeObject(foundUser);
                     }   
@@ -70,6 +71,8 @@ public class Client implements Runnable {
                 
                 else if (request.getType().equals("Message")) {
 =======
+=======
+>>>>>>> parent of 4751ba9 (old mess)
                         outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser + " добавлен в друзья", java.time.LocalDateTime.now()));
                     }
                 } else if (request.getType().equals("getOldMessages")) {
