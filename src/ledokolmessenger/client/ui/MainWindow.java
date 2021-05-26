@@ -117,12 +117,6 @@ public class MainWindow extends javax.swing.JFrame {
                         if (respond1.getRespondCode() == 200) {
                             this.addFriendLabel.setForeground(Color.GREEN);
                             this.addFriendLabel.setText(respond1.getRespond());
-//                            DefaultListModel<String> model = new DefaultListModel<>();
-//                            ClientInfo friend = (ClientInfo) inputStream.readObject();
-//                            model.addElement(friend.getClientName());
-//                            JScrollPane newScrollPane = this.getMyMessageTable();
-//                            this.messagePane.add(newScrollPane, friend.getClientName());
-//                            this.scrollPanes.put(friend.getClientName(), newScrollPane);
 
                         } else if (respond1.getRespondCode() == 404) {
                             this.addFriendLabel.setForeground(Color.RED);
@@ -133,11 +127,11 @@ public class MainWindow extends javax.swing.JFrame {
                         List<Message> oldMessages = (List<Message>) this.inputStream.readObject();
                         //List<Message> oldMessages = (List<Message>) respond;
                         oldMessages.forEach(message -> {
-                            System.out.println(message.getMessage() + " ) " + message.getSender() + "|" + message.getRecipient() + "|" + message.getTime());
+                            //System.out.println(message.getMessage() + " ) " + message.getSender() + "|" + message.getRecipient() + "|" + message.getTime());
                             JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
                             JTable jTable = (JTable) scrollPane.getViewport().getView();
-                            System.out.println(message.getRecipient() + " | " + message.getSender());
-                            System.out.println(this.jList1.getSelectedValue());
+                            //System.out.println(message.getRecipient() + " | " + message.getSender());
+                            //System.out.println(this.jList1.getSelectedValue());
                             DefaultTableModel model = (DefaultTableModel) jTable.getModel();
                             if (message.getSender().equals(this.jList1.getSelectedValue())) {
                                 model.addRow(new Object[]{" ", message.getMessage()});
@@ -147,9 +141,10 @@ public class MainWindow extends javax.swing.JFrame {
                             scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
                         });
 
+                        
+                        
                     } else if (respond.getType().equals("Message")) {
                         Message message = (Message) respond;
-                        //JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
                         JScrollPane scrollPane = scrollPanes.get(message.getSender());
                         JTable jTable = (JTable) scrollPane.getViewport().getView();
                         System.out.println(message.getRecipient() + " | " + message.getSender());

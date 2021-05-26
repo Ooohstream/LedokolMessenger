@@ -144,7 +144,7 @@ public class Database {
         return user;
     }
 
-    public List<Message> getOldMessages(String myLogin, String userLogin) throws SQLException {
+    public MessageList getOldMessages(String myLogin, String userLogin) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
         String S = "SELECT * FROM messages where ("
@@ -154,7 +154,7 @@ public class Database {
         ResultSet resultSet = st.executeQuery(S);
 
         if (!resultSet.isBeforeFirst()) {
-            return oldMessages;
+            return null;
         }
 
         while (resultSet.next()) {
@@ -171,8 +171,9 @@ public class Database {
             System.out.println(message.getMessage()+" ) "+message.getSender()+"|"+message.getRecipient()+"|"+message.getTime());
             oldMessages.add(message);
         }
+        MessageList messages = new MessageList("OldMessages", oldMessages);
 
-        return oldMessages;
+        return messages;
     }
 
     public Message sendMessage(Message mess) throws SQLException {

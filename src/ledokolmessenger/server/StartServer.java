@@ -27,15 +27,16 @@ public class StartServer {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         ServerSocket serverSocket = null;
         Socket userSocket = null;
-        String user="postgres";
-        String pwd = System.getenv("PG_PASSWORD");
-        String dbUrl= "jdbc:postgresql://localhost:5432/serverdb";
-        String drvName ="org.postgresql.Driver";
+        ConnectionInfo Info= new ConnectionInfo("postgres", System.getenv("PG_PASSWORD"), "jdbc:postgresql://localhost:5432/serverdb", "org.postgresql.Driver");
+        //String user="postgres";
+        //String pwd = System.getenv("PG_PASSWORD");
+        //String dbUrl= "jdbc:postgresql://localhost:5432/serverdb";
+        //String drvName ="org.postgresql.Driver";
         Connection con = null;
         try {
             serverSocket = new ServerSocket(PORT);
-            Class.forName(drvName);
-            con = DriverManager.getConnection(dbUrl, user, pwd);
+            Class.forName(Info.getDrvName());
+            con = DriverManager.getConnection(Info.getDbUrl(), Info.getUser(), Info.getPwd());
             Statement st=con.createStatement();
             System.out.println("Сервер запущен");
             while (true) {

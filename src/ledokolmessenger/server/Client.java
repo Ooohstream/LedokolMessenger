@@ -61,8 +61,8 @@ public class Client implements Runnable {
                     
                 } else if (request.getType().equals("getOldMessages")) {
                     ClientInfo request1 = (ClientInfo) request;
-                    List<Message> oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
-                    outputStream.writeObject(new SendableObject("OldMessages"));
+                    MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
+                    //outputStream.writeObject(new SendableObject("OldMessages"));
                     outputStream.writeObject(oldMessages);
                     
                     
