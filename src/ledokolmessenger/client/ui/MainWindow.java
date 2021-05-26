@@ -35,7 +35,6 @@ public class MainWindow extends javax.swing.JFrame {
     private final Socket clientSocket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-    private final ReceiverThread receiverThread;
     private Map<String, JScrollPane> scrollPanes = new HashMap<>();
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
 
@@ -111,7 +110,7 @@ public class MainWindow extends javax.swing.JFrame {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        sender = new Thread(() -> {
+        new Thread(() -> {
             try {
                 while (true) {
                     SendableObject respond = (SendableObject) this.inputStream.readObject();
@@ -120,12 +119,6 @@ public class MainWindow extends javax.swing.JFrame {
                         if (respond1.getRespondCode() == 200) {
                             this.addFriendLabel.setForeground(Color.GREEN);
                             this.addFriendLabel.setText(respond1.getRespond());
-//                            DefaultListModel<String> model = new DefaultListModel<>();
-//                            ClientInfo friend = (ClientInfo) inputStream.readObject();
-//                            model.addElement(friend.getClientName());
-//                            JScrollPane newScrollPane = this.getMyMessageTable();
-//                            this.messagePane.add(newScrollPane, friend.getClientName());
-//                            this.scrollPanes.put(friend.getClientName(), newScrollPane);
 
                         } else if (respond1.getRespondCode() == 404) {
                             this.addFriendLabel.setForeground(Color.RED);
@@ -133,9 +126,9 @@ public class MainWindow extends javax.swing.JFrame {
                         }
 
                     } else if (respond.getType().equals("OldMessages")) {
-                        List<Message> oldMessages = (List<Message>) this.inputStream.readObject();
-                        //List<Message> oldMessages = (List<Message>) respond;
-                        oldMessages.forEach(message -> {
+                        //List<Message> oldMessages = (List<Message>) this.inputStream.readObject();
+                        MessageList oldMessages = (MessageList) respond;
+                        oldMessages.getMessageList().forEach(message -> {
                             System.out.println(message.getMessage() + " ) " + message.getSender() + "|" + message.getRecipient() + "|" + message.getTime());
                             JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
                             JTable jTable = (JTable) scrollPane.getViewport().getView();
@@ -165,8 +158,7 @@ public class MainWindow extends javax.swing.JFrame {
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-        });
-        sender.start();
+        }).start();
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -368,17 +360,17 @@ public class MainWindow extends javax.swing.JFrame {
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
         if (!evt.getValueIsAdjusting()) {
             CardLayout l = (CardLayout) this.messagePane.getLayout();
-            l.show(this.messagePane, this.jList1.getSelectedValue());
             try {
                 if (this.gotOldMessages.get(this.jList1.getSelectedValue()) == null) {
                     ClientInfo user = new ClientInfo("getOldMessages", this.jList1.getSelectedValue());
                     outputStream.writeObject(user);
                     this.gotOldMessages.put(this.jList1.getSelectedValue(), true);
-//                    scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().removeAdjustmentListener(scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().getAdjustmentListeners()[0]);
+                    scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().removeAdjustmentListener(scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().getAdjustmentListeners()[0]);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
+            l.show(this.messagePane, this.jList1.getSelectedValue());
         }
     }//GEN-LAST:event_jList1ValueChanged
 

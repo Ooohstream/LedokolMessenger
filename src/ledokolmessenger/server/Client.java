@@ -43,8 +43,7 @@ public class Client implements Runnable {
             outputStream.writeObject(db.getListFriends(this.clientName));
             while (true) {
                 SendableObject request = (SendableObject) inputStream.readObject();
-                
-                
+
                 if (request.getType().equals("addFriend")) {
                     ClientInfo request1 = (ClientInfo) request;
                     ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
@@ -56,18 +55,14 @@ public class Client implements Runnable {
                     } else {
                         outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
                         //outputStream.writeObject(foundUser);
-                    }   
-                } 
-                
-                
-                else if (request.getType().equals("getOldMessages")) {
+                    }
+                } else if (request.getType().equals("getOldMessages")) {
                     ClientInfo request1 = (ClientInfo) request;
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
-                    if(oldMessages != null)
-                        outputStream.writeObject(oldMessages);  
-                }   
-                    
-                    
+                    if (oldMessages != null) {
+                        outputStream.writeObject(oldMessages);
+                    }
+
                 } else if (request.getType().equals("Message")) {
                     Message message = (Message) request; //inputStream.readObject();
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
@@ -75,9 +70,13 @@ public class Client implements Runnable {
                     }
                     this.sendMessage(message);
                 }
-                
-                
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+
         } catch (IOException | ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
