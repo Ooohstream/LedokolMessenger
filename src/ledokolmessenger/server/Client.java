@@ -5,10 +5,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ledokolmessenger.client.ui.MainWindow;
 import ledokolmessenger.serialized.*;
 
 /**
@@ -22,6 +26,7 @@ public class Client implements Runnable {
     private final ObjectInputStream inputStream;
     private final String clientName;
     private Database db;
+    private Queue<SendableObject> queue = new LinkedList<>();
 
     public Client(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName, Database db) {
         this.socket = socket;
@@ -30,6 +35,23 @@ public class Client implements Runnable {
         this.clientName = clientName;
         this.db = db;
         StartServer.addClient(this);
+
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    if(!queue.isEmpty())
+                    {
+                        outputStream.writeObject(queue);
+                        queue.clear();
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }, 0, 100);
     }
 
     public String getClientName() {
@@ -49,11 +71,11 @@ public class Client implements Runnable {
                     ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
                     System.out.println(foundUser.getClientName());
                     if (foundUser == null) {
-                        outputStream.writeObject(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
+                        queue.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
                     } else if (foundUser.getType().equals("#friendavailable#")) {
-                        outputStream.writeObject(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
+                        queue.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
                     } else {
-                        outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
+                        queue.add(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
                         //outputStream.writeObject(foundUser);
                     }
                 }
@@ -62,7 +84,7 @@ public class Client implements Runnable {
                     ClientInfo request1 = (ClientInfo) request;
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
                     if (oldMessages != null) {
-                        outputStream.writeObject(oldMessages);
+                        queue.add(oldMessages);
                     }
                 }
 
@@ -72,7 +94,11 @@ public class Client implements Runnable {
                         break;
                     }
                     System.out.println(message.getMessage());
-                    this.sendMessage(message);
+                    queue.add(message);
+                }
+
+                if (request.getType().equals("Update")) {
+                    queue.add(new Respond("Update", 200, "Updated", java.time.LocalDateTime.now()));
                 }
             }
         } catch (IOException | ClassNotFoundException | SQLException ex) {
