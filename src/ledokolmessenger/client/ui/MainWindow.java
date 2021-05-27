@@ -86,49 +86,6 @@ public class MainWindow extends javax.swing.JFrame {
                 while (true) {
                     Queue<SendableObject> respond = (Queue<SendableObject>) this.inputStream.readObject();
                     this.mergeActivities(respond);
-//                    switch (respond.getType()) {
-//                        case "Respond":
-//                            Respond respond1 = (Respond) respond;
-//                            if (respond1.getRespondCode() == 200) {
-//                                this.addFriendLabel.setForeground(Color.GREEN);
-//                                this.addFriendLabel.setText(respond1.getRespond());
-//
-//                            } else if (respond1.getRespondCode() == 404) {
-//                                this.addFriendLabel.setForeground(Color.RED);
-//                                this.addFriendLabel.setText(respond1.getRespond());
-//                            }
-//                            break;
-//                        case "OldMessages":
-//                            MessageList oldMessages = (MessageList) respond;
-//                            JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
-//                            JTable jTable = (JTable) scrollPane.getViewport().getView();
-//                            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-//                            TableColumnModel colModel = jTable.getColumnModel();
-//                            colModel.getColumn(0).setPreferredWidth(25);
-//                            oldMessages.getMessageList().forEach(message -> {
-//                                if (message.getSender().equals(this.jList1.getSelectedValue())) {
-//                                    model.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
-//                                } else {
-//                                    model.addRow(new Object[]{message.getSender(), message.getMessage(), " ", " "});
-//                                }
-//                            });
-//                            break;
-//                        case "Message":
-//                            Message message = (Message) respond;
-//                            System.out.println(message.getMessage());
-//                            JScrollPane scrollPane2 = scrollPanes.get(message.getSender());
-//                            JTable jTable2 = (JTable) scrollPane2.getViewport().getView();
-//                            DefaultTableModel model2 = (DefaultTableModel) jTable2.getModel();
-//                            model2.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
-//                            scrollPane2.getVerticalScrollBar().setValue(scrollPane2.getVerticalScrollBar().getMaximum());
-//                            break;
-//                        case "Update":
-//                            Respond respond2 = (Respond) inputStream.readObject();
-//                            System.out.println(respond2.getRespond());
-//                            break;
-//                        default:
-//                            break;
-//                    }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -151,7 +108,49 @@ public class MainWindow extends javax.swing.JFrame {
             public void run() {
                 if (!activities.isEmpty()) {
                     SendableObject activity = activities.remove();
-                    System.out.println(activity.getType());
+                    switch (activity.getType()){
+                        case "Respond":
+                            Respond respond1 = (Respond) activity;
+                            if (respond1.getRespondCode() == 200) {
+                                addFriendLabel.setForeground(Color.GREEN);
+                                addFriendLabel.setText(respond1.getRespond());
+
+                            } else if (respond1.getRespondCode() == 404) {
+                                addFriendLabel.setForeground(Color.RED);
+                                addFriendLabel.setText(respond1.getRespond());
+                            }
+                            break;
+                        case "OldMessages":
+                            MessageList oldMessages = (MessageList) activity;
+                            JScrollPane scrollPane = scrollPanes.get(jList1.getSelectedValue());
+                            JTable jTable = (JTable) scrollPane.getViewport().getView();
+                            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+                            TableColumnModel colModel = jTable.getColumnModel();
+                            colModel.getColumn(0).setPreferredWidth(25);
+                            oldMessages.getMessageList().forEach(message -> {
+                                if (message.getSender().equals(jList1.getSelectedValue())) {
+                                    model.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
+                                } else {
+                                    model.addRow(new Object[]{message.getSender(), message.getMessage(), " ", " "});
+                                }
+                            });
+                            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+                            break;
+                        case "Message":
+                            Message message = (Message) activity;
+                            JScrollPane scrollPane2 = scrollPanes.get(message.getSender());
+                            JTable jTable2 = (JTable) scrollPane2.getViewport().getView();
+                            DefaultTableModel model2 = (DefaultTableModel) jTable2.getModel();
+                            model2.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
+                            scrollPane2.getVerticalScrollBar().setValue(scrollPane2.getVerticalScrollBar().getMaximum());
+                            break;
+                        case "Update":
+                            Respond respond2 = (Respond) activity;
+                            System.out.println(respond2.getRespond());
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }, 0, 100);
@@ -394,7 +393,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     public void mergeActivities(Queue<SendableObject> inputQueue) {
         inputQueue.forEach(e -> {
-            activities.add(e);
+            this.activities.add(e);
         });
     }
 }
