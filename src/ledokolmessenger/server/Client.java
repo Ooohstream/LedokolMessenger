@@ -56,27 +56,25 @@ public class Client implements Runnable {
                         outputStream.writeObject(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
                         //outputStream.writeObject(foundUser);
                     }
-                } else if (request.getType().equals("getOldMessages")) {
+                }
+
+                if (request.getType().equals("getOldMessages")) {
                     ClientInfo request1 = (ClientInfo) request;
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
                     if (oldMessages != null) {
                         outputStream.writeObject(oldMessages);
                     }
+                }
 
-                } else if (request.getType().equals("Message")) {
+                if (request.getType().equals("Message")) {
                     Message message = (Message) request; //inputStream.readObject();
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
                     }
+                    System.out.println(message.getMessage());
                     this.sendMessage(message);
                 }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-                }
             }
-
         } catch (IOException | ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -86,7 +84,7 @@ public class Client implements Runnable {
 
     public void sendMessage(Message message) {
 
-        Client client = (Client) StartServer.getNamePass().get(message.getRecipient());
+        Client client = (Client) StartServer.getClientsOnline().get(message.getRecipient());
 
         try {
             db.sendMessage(message);
@@ -99,6 +97,14 @@ public class Client implements Runnable {
     }
 
     public void close() {
-        StartServer.getNamePass().remove(this.clientName);
+        StartServer.getClientsOnline().remove(this.clientName);
+        try {
+            this.inputStream.close();
+            this.outputStream.close();
+            this.socket.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 }
