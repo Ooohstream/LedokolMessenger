@@ -168,7 +168,6 @@ public class Database {
             }
             
             Message message = new Message("Message", content, sender, recipient, date_create);
-            System.out.println(message.getMessage()+" ) "+message.getSender()+"|"+message.getRecipient()+"|"+message.getTime());
             oldMessages.add(message);
         }
         MessageList messages = new MessageList("OldMessages", oldMessages);

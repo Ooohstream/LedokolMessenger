@@ -21,7 +21,7 @@ public class EntranceFrame extends javax.swing.JFrame {
 
     private Socket clientSocket;
     private final MessageDigest sha512;
-    private final String IP = "25.79.130.202";
+    private final String IP = "25.88.153.103";
     private final int PORT = 3443;
 
     public EntranceFrame() throws NoSuchAlgorithmException {
@@ -312,8 +312,9 @@ public class EntranceFrame extends javax.swing.JFrame {
             if (Arrays.equals(this.registerPassword1.getPassword(), this.registerPassword2.getPassword())) {
                 byte[] bytes = sha512.digest(String.valueOf(this.registerPassword1.getPassword()).getBytes());
                 StringBuilder hashPassword = new StringBuilder();
-                for (byte b : bytes) 
+                for (byte b : bytes) {
                     hashPassword.append(String.format("%02X", b));
+                }
                 this.clientSocket = new Socket(IP, PORT);
                 ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());

@@ -2,9 +2,10 @@ package ledokolmessenger.client.ui;
 
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.event.AdjustmentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,18 +13,18 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Exchanger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import ledokolmessenger.client.ReceiverThread;
+import javax.swing.table.TableColumnModel;
 import ledokolmessenger.serialized.*;
-import ledokolmessenger.client.utillities.WordWrapCellRenderer;
 
 /**
  *
@@ -35,61 +36,19 @@ public class MainWindow extends javax.swing.JFrame {
     private final Socket clientSocket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+    private final Object lock;
     private Map<String, JScrollPane> scrollPanes = new HashMap<>();
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
 
     private JScrollPane getMyMessageTable() {
-        JScrollPane jScrollPane = new JScrollPane();
-
-        jScrollPane.setBorder(null);
-
-        JTable jTable = new JTable();
-
-        jTable.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        jTable.setFont(new java.awt.Font("Verdana", 0, 14));
-
-        jTable.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][]{},
-                new String[]{
-                    "", ""
-                }
-        ) {
-            boolean[] canEdit = new boolean[]{
-                false, false
-            };
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-        });
-
-        jTable.setFocusable(false);
-
-        jTable.setGridColor(new java.awt.Color(255, 255, 255));
-
-        jTable.setSelectionBackground(new java.awt.Color(255, 255, 255));
-
-        jTable.setShowHorizontalLines(false);
-
-        jTable.setShowVerticalLines(false);
-
-        jTable.getTableHeader().setResizingAllowed(false);
-        jTable.getTableHeader().setReorderingAllowed(false);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        jTable.getColumnModel().getColumn(0).setCellRenderer(new WordWrapCellRenderer());
-        jTable.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-
-        jScrollPane.setViewportView(jTable);
-
-        return jScrollPane;
+        MessagesScrollPane scrollPane = new MessagesScrollPane();
+        scrollPane.configure();
+        return scrollPane;
     }
 
     public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) throws IOException, ClassNotFoundException {
         initComponents();
+        this.lock = new Object();
         this.clientSocket = clientSocket;
         this.clientName = clientName;
         this.jLabel1.setText(this.clientName);
@@ -100,6 +59,13 @@ public class MainWindow extends javax.swing.JFrame {
             DefaultListModel<String> model = new DefaultListModel<>();
             this.jList1.setModel(model);
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
+            JPanel startScreen = new JPanel();
+            JLabel label = new JLabel("LDKL");
+            startScreen.add(label);
+            startScreen.setBackground(Color.WHITE);
+            this.messageField.setVisible(false);
+            this.sendButton.setVisible(false);
+            this.messagePane.add(startScreen, "StartScreen");
             friends.forEach(friend -> {
                 model.addElement(friend.getClientName());
                 JScrollPane newScrollPane = this.getMyMessageTable();
@@ -110,60 +76,72 @@ public class MainWindow extends javax.swing.JFrame {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        new Thread(() -> {
+        Thread sender = new Thread(() -> {
             try {
                 while (true) {
                     SendableObject respond = (SendableObject) this.inputStream.readObject();
-                    if (respond.getType().equals("Respond")) {
-                        Respond respond1 = (Respond) respond;
-                        if (respond1.getRespondCode() == 200) {
-                            this.addFriendLabel.setForeground(Color.GREEN);
-                            this.addFriendLabel.setText(respond1.getRespond());
+                    switch (respond.getType()) {
+                        case "Respond":
+                            Respond respond1 = (Respond) respond;
+                            if (respond1.getRespondCode() == 200) {
+                                this.addFriendLabel.setForeground(Color.GREEN);
+                                this.addFriendLabel.setText(respond1.getRespond());
 
-                        } else if (respond1.getRespondCode() == 404) {
-                            this.addFriendLabel.setForeground(Color.RED);
-                            this.addFriendLabel.setText(respond1.getRespond());
-                        }
-
-                    } else if (respond.getType().equals("OldMessages")) {
-                        //List<Message> oldMessages = (List<Message>) this.inputStream.readObject();
-                        MessageList oldMessages = (MessageList) respond;
-                        oldMessages.getMessageList().forEach(message -> {
-                            System.out.println(message.getMessage() + " ) " + message.getSender() + "|" + message.getRecipient() + "|" + message.getTime());
+                            } else if (respond1.getRespondCode() == 404) {
+                                this.addFriendLabel.setForeground(Color.RED);
+                                this.addFriendLabel.setText(respond1.getRespond());
+                            }
+                            break;
+                        case "OldMessages":
+                            MessageList oldMessages = (MessageList) respond;
                             JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
                             JTable jTable = (JTable) scrollPane.getViewport().getView();
-                            System.out.println(message.getRecipient() + " | " + message.getSender());
-                            System.out.println(this.jList1.getSelectedValue());
                             DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-                            if (message.getSender().equals(this.jList1.getSelectedValue())) {
-                                model.addRow(new Object[]{" ", message.getMessage()});
-                            } else {
-                                model.addRow(new Object[]{message.getMessage(), " "});
+                            TableColumnModel colModel = jTable.getColumnModel();
+                            colModel.getColumn(0).setPreferredWidth(25);
+                            oldMessages.getMessageList().forEach(message -> {
+                                if (message.getSender().equals(this.jList1.getSelectedValue())) {
+                                    model.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
+                                } else {
+                                    model.addRow(new Object[]{message.getSender(), message.getMessage(), " ", " "});
+                                }
+                            });
+                            break;
+                        case "Message":
+                            Message message = (Message) respond;
+                            System.out.println(message.getMessage());
+                            JScrollPane scrollPane2 = scrollPanes.get(message.getSender());
+                            JTable jTable2 = (JTable) scrollPane2.getViewport().getView();
+                            DefaultTableModel model2 = (DefaultTableModel) jTable2.getModel();
+                            model2.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
+                            for (int i = 0; i < 100; i++) {
+                                scrollPane2.getVerticalScrollBar().setValue(scrollPane2.getVerticalScrollBar().getMaximum());
                             }
-                            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
-                        });
-
-                    } else if (respond.getType().equals("Message")) {
-                        Message message = (Message) respond;
-                        //JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
-                        JScrollPane scrollPane = scrollPanes.get(message.getSender());
-                        JTable jTable = (JTable) scrollPane.getViewport().getView();
-                        System.out.println(message.getRecipient() + " | " + message.getSender());
-                        System.out.println(this.jList1.getSelectedValue());
-                        DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-                        model.addRow(new Object[]{" ", message.getMessage()});
-                        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum() + 10000);
+                            break;
+                        default:
+                            break;
+                    }
+                    synchronized (lock) {
+                        lock.notify();
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                try {
+                    this.inputStream.close();
+                    this.outputStream.close();
+                    this.clientSocket.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-        }).start();
+        });
+
+        sender.start();
 
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                super.windowClosing(e);
                 try {
                     try (clientSocket; outputStream; inputStream) {
                         outputStream.writeObject(new Message("Message", "##session##end##", null, null, java.time.LocalDateTime.now()));
@@ -171,17 +149,17 @@ public class MainWindow extends javax.swing.JFrame {
                 } catch (IOException exc) {
                     System.out.println("Closed");
                 }
+                super.windowClosing(e);
             }
         });
     }
-    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        messageField = new javax.swing.JTextField();
+        sendButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         mainMenu = new javax.swing.JTabbedPane();
@@ -198,15 +176,15 @@ public class MainWindow extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
-        jTextField1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        jTextField1.setText("jTextField1");
-        jTextField1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        messageField.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        messageField.setText(" ");
+        messageField.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jButton1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        jButton1.setText("Отправить");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        sendButton.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        sendButton.setText("Отправить");
+        sendButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                sendButtonActionPerformed(evt);
             }
         });
 
@@ -305,9 +283,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(messageField, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+                        .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
                     .addComponent(messagePane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -317,11 +295,11 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(messagePane, javax.swing.GroupLayout.PREFERRED_SIZE, 410, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(messagePane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jTextField1)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(messageField)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -332,21 +310,22 @@ public class MainWindow extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if (!this.jTextField1.getText().trim().isEmpty()) {
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+        if (!this.messageField.getText().trim().isEmpty()) {
+            JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+            JTable jTable = (JTable) scrollPane.getViewport().getView();
+            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
             try {
-                Message message = new Message("Message", this.jTextField1.getText(), this.clientName, this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
+                Message message = new Message("Message", this.messageField.getText(), this.clientName, this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
-                JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
-                JTable jTable = (JTable) scrollPane.getViewport().getView();
-                DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-                model.addRow(new Object[]{message.getMessage(), " "});
-                this.jTextField1.setText(" ");
+                model.addRow(new Object[]{this.clientName, message.getMessage(), " ", " "});
+                this.messageField.setText(" ");
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
+            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_sendButtonActionPerformed
 
     private void addFriendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFriendActionPerformed
         ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
@@ -359,26 +338,33 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
         if (!evt.getValueIsAdjusting()) {
-            CardLayout l = (CardLayout) this.messagePane.getLayout();
             try {
-                if (this.gotOldMessages.get(this.jList1.getSelectedValue()) == null) {
+                if (!this.gotOldMessages.containsKey(this.jList1.getSelectedValue())) {
                     ClientInfo user = new ClientInfo("getOldMessages", this.jList1.getSelectedValue());
                     outputStream.writeObject(user);
+                    synchronized (lock) {
+                        lock.wait();
+                    }
                     this.gotOldMessages.put(this.jList1.getSelectedValue(), true);
-                    scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().removeAdjustmentListener(scrollPanes.get(this.jList1.getSelectedValue()).getVerticalScrollBar().getAdjustmentListeners()[0]);
                 }
-            } catch (IOException ex) {
+            } catch (IOException | InterruptedException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
+            CardLayout l = (CardLayout) this.messagePane.getLayout();
             l.show(this.messagePane, this.jList1.getSelectedValue());
+            JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+
+            if (!this.sendButton.isVisible()) {
+                this.sendButton.setVisible(true);
+                this.messageField.setVisible(true);
+            }
         }
     }//GEN-LAST:event_jList1ValueChanged
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addFriend;
     private javax.swing.JLabel addFriendLabel;
     private javax.swing.JTextField friendNameTextField;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JList<String> jList1;
     private javax.swing.JList<String> jList2;
@@ -386,8 +372,9 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTabbedPane mainMenu;
+    private javax.swing.JTextField messageField;
     private javax.swing.JPanel messagePane;
+    private javax.swing.JButton sendButton;
     // End of variables declaration//GEN-END:variables
 }
