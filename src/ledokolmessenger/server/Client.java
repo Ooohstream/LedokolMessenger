@@ -98,7 +98,9 @@ public class Client implements Runnable {
                 }
 
                 if (request.getType().equals("Update")) {
-                    queue.add(new Respond("Update", 200, "Updated", java.time.LocalDateTime.now()));
+                    UpdateData update = new UpdateData("Update", db.getListFriends(this.clientName));
+                    queue.add(update);
+                    //queue.add(new Respond("Update", 200, "Updated", java.time.LocalDateTime.now()));
                 }
             }
         } catch (IOException | ClassNotFoundException | SQLException ex) {
