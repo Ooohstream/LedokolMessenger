@@ -12,7 +12,7 @@ import ledokolmessenger.serialized.SendableObject;
  */
 public class BlockingQueue {
 
-    private List<SendableObject> activities = new LinkedList<>();
+    private final List<SendableObject> activities = new LinkedList<>();
 
     public synchronized SendableObject dequeue() {
         while (this.activities.isEmpty())
@@ -21,9 +21,7 @@ public class BlockingQueue {
         } catch (InterruptedException ex) {
             Logger.getLogger(BlockingQueue.class.getName()).log(Level.SEVERE, null, ex);
         }
-        SendableObject activity = activities.get(0);
-        activities.remove(activity);
-        System.out.println(activities);
+        SendableObject activity = activities.remove(0);
         return activity;
     }
 
@@ -31,7 +29,6 @@ public class BlockingQueue {
         activities.add(item);
         notify();
     }
-<<<<<<< HEAD
 
     public synchronized SendableObject getFirst() {
         if (!activities.isEmpty()) {
@@ -50,6 +47,4 @@ public class BlockingQueue {
         return "BlockingQueue{" + "activities=" + activities + '}';
     }
 
-=======
->>>>>>> parent of 035d7d0 (Added dynamic activities server)
 }

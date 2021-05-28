@@ -35,29 +35,6 @@ public class Client implements Runnable {
         this.clientName = clientName;
         this.db = db;
         StartServer.addClient(this);
-
-        Timer sender = new Timer();
-
-        sender.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-<<<<<<< HEAD
-                    if (!activities.isEmpty()) {
-                        outputStream.writeUnshared(activities);
-                        System.out.print(activities.element().getType());
-=======
-                    if(!activities.isEmpty())
-                    {
-                        outputStream.writeObject(activities);
->>>>>>> parent of 035d7d0 (Added dynamic activities server)
-                        activities.clear();
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }, 0, 100);
     }
 
     public String getClientName() {
@@ -66,6 +43,23 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
+
+        Timer sender = new Timer();
+
+        sender.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    if (!activities.isEmpty()) {
+                        outputStream.writeUnshared(activities);
+                        activities.clear();
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }, 0, 100);
+
         System.out.println(this.clientName + " подключился");
         try {
             outputStream.writeObject(db.getListFriends(this.clientName));
@@ -91,7 +85,8 @@ public class Client implements Runnable {
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
-                    } else {
+                    }
+                    else{
                         activities.add(new MessageList("##OldMessage##notFound##", null));
                     }
                 }
@@ -101,8 +96,7 @@ public class Client implements Runnable {
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
                     }
-                    System.out.println(message.getMessage());
-                    activities.add(message);
+                    this.sendMessage(message);
                 }
             }
         } catch (IOException | ClassNotFoundException | SQLException ex) {
@@ -119,9 +113,9 @@ public class Client implements Runnable {
         try {
             db.sendMessage(message);
             if (client != null) {
-                client.outputStream.writeObject(message);
+                client.activities.add(message);
             }
-        } catch (IOException | SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
