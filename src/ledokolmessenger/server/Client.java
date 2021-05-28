@@ -26,7 +26,7 @@ public class Client implements Runnable {
     private final ObjectInputStream inputStream;
     private final String clientName;
     private Database db;
-    private Queue<SendableObject> queue = new LinkedList<>();
+    private Queue<SendableObject> activities = new LinkedList<>();
 
     public Client(Socket socket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName, Database db) {
         this.socket = socket;
@@ -42,10 +42,10 @@ public class Client implements Runnable {
             @Override
             public void run() {
                 try {
-                    if(!queue.isEmpty())
+                    if(!activities.isEmpty())
                     {
-                        outputStream.writeObject(queue);
-                        queue.clear();
+                        outputStream.writeObject(activities);
+                        activities.clear();
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -71,11 +71,11 @@ public class Client implements Runnable {
                     ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
                     System.out.println(foundUser.getClientName());
                     if (foundUser == null) {
-                        queue.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
+                        activities.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
                     } else if (foundUser.getType().equals("#friendavailable#")) {
-                        queue.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
+                        activities.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
                     } else {
-                        queue.add(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
+                        activities.add(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
                         //outputStream.writeObject(foundUser);
                     }
                 }
@@ -84,7 +84,7 @@ public class Client implements Runnable {
                     ClientInfo request1 = (ClientInfo) request;
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
                     if (oldMessages != null) {
-                        queue.add(oldMessages);
+                        activities.add(oldMessages);
                     }
                 }
 
@@ -94,12 +94,12 @@ public class Client implements Runnable {
                         break;
                     }
                     System.out.println(message.getMessage());
-                    queue.add(message);
+                    activities.add(message);
                 }
 
                 if (request.getType().equals("Update")) {
                     UpdateData update = new UpdateData("Update", db.getListFriends(this.clientName));
-                    queue.add(update);
+                    activities.add(update);
                     //queue.add(new Respond("Update", 200, "Updated", java.time.LocalDateTime.now()));
                 }
             }
