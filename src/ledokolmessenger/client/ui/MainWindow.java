@@ -1,6 +1,7 @@
 package ledokolmessenger.client.ui;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -15,6 +16,8 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import ledokolmessenger.client.BlockingQueue;
 import ledokolmessenger.serialized.*;
 
@@ -47,6 +50,12 @@ public class MainWindow extends javax.swing.JFrame {
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
             this.messageField.setVisible(false);
             this.sendButton.setVisible(false);
+            JScrollPane startScreen = new JScrollPane();
+            startScreen.setBackground(Color.white);
+            JLabel startScreenLabel = new JLabel();
+            startScreenLabel.setText("LDKL");
+            startScreen.setViewportView(startScreenLabel);
+            messagePane.add(startScreen);
             friends.forEach(friend -> {
                 model.addElement(friend.getClientName());
                 MessagesPane scrollPane = new MessagesPane();
