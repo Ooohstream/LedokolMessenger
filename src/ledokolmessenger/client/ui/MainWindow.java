@@ -17,8 +17,6 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
 import ledokolmessenger.client.BlockingQueue;
 import ledokolmessenger.serialized.*;
 
@@ -81,25 +79,23 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        Thread dynamicAcitivitiesServer = new Thread(() -> {
-            while (true) {
-                try {
-                    if (!activities.isEmpty()) {
-                        if (activities.getFirst().getType().equals("Message")) {
-                            Message message = (Message) activities.dequeue();
-                            scrollPanes.get(message.getSender()).getModel().addElement(message.getMessage());
-                        }
-                    }
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-
-
+//        Thread dynamicAcitivitiesServer = new Thread(() -> {
+//            while (true) {
+//                try {
+//                    if (!activities.isEmpty()) {
+//                        if (activities.getFirst().getType().equals("Message")) {
+//                            Message message = (Message) activities.dequeue();
+//                            scrollPanes.get(message.getSender()).getModel().addElement(message.getMessage());
+//                        }
+//                    }
+//                    Thread.sleep(100);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        });
         receiver.start();
-        dynamicAcitivitiesServer.start();
+//        dynamicAcitivitiesServer.start();
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -303,12 +299,11 @@ public class MainWindow extends javax.swing.JFrame {
                     ClientInfo user = new ClientInfo("getOldMessages", selectedName);
                     outputStream.writeObject(user);
                     MessageList activity;
-                    if(activities.getFirst().getType().equals("OldMessages"))
-                    {
+                    if (activities.getFirst().getType().equals("OldMessages")) {
                         activity = (MessageList) activities.dequeue();
                         activity.getMessageList().forEach(message -> {
                             scrollPanes.get(selectedName).getModel().addElement(message.getMessage());
-                    });
+                        });
                     }
                     this.gotOldMessages.put(selectedName, true);
                 }

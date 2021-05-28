@@ -52,6 +52,7 @@ public class Client implements Runnable {
                 try {
                     if (!activities.isEmpty()) {
                         outputStream.writeUnshared(activities);
+                        System.out.print(activities.element().getType());
                         activities.clear();
                     }
                 } catch (IOException ex) {
@@ -85,8 +86,7 @@ public class Client implements Runnable {
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
-                    }
-                    else{
+                    } else {
                         activities.add(new MessageList("##OldMessage##notFound##", null));
                     }
                 }
