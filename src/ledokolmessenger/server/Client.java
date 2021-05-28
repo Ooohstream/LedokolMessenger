@@ -86,6 +86,9 @@ public class Client implements Runnable {
                     if (oldMessages != null) {
                         activities.add(oldMessages);
                     }
+                    else{
+                        activities.add(new MessageList("##OldMessage##notFound##", null));
+                    }
                 }
 
                 if (request.getType().equals("Message")) {

@@ -8,14 +8,18 @@
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/serialized/ClientInfo.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/server/ConnectionInfo.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/server/StartServer.java</file>
+            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/serialized/Message.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/server/Database.java</file>
+            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/utillities/MyListCellRenderer.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/ui/MainWindow.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/utillities/WordWrapCellRenderer.java</file>
-            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/ui/MessagesScrollPane.java</file>
-            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/ui/MessagesTable.java</file>
+            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/models/MessageModel.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/StartClient.java</file>
+            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/ui/MessagesPane.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/serialized/MessageList.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/serialized/Respond.java</file>
+            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/LedokolMessenger.java</file>
+            <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/BlockingQueue.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/client/ui/EntranceFrame.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/server/Authentication.java</file>
             <file>file:/C:/Users/aleks/Documents/GitHub/LedokolMessenger/src/ledokolmessenger/serialized/SendableObject.java</file>

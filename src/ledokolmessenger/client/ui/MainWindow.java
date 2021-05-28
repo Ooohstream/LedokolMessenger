@@ -84,7 +84,7 @@ public class MainWindow extends javax.swing.JFrame {
                 if (activities.getFirst() != null) {
                     if (activities.getFirst().getType().equals("Message")) {
                         Message newMessage = (Message) activities.dequeue();
-                        String selectedName = this.friendList.getSelectedValue();
+                        String selectedName = newMessage.getSender();//this.friendList.getSelectedValue();
                         JScrollPane scrollPane = scrollPanes.get(selectedName);
                         JList jList = (JList) scrollPane.getViewport().getView();
                         DefaultListModel<String> model = (DefaultListModel<String>) jList.getModel();
@@ -306,9 +306,11 @@ public class MainWindow extends javax.swing.JFrame {
                     JScrollPane scrollPane = scrollPanes.get(selectedName);
                     JList jList = (JList) scrollPane.getViewport().getView();
                     DefaultListModel<String> model = (DefaultListModel<String>) jList.getModel();
-                    activity.getMessageList().forEach(message -> {
-                        model.addElement(message.getMessage());
-                    });
+                    if (!activity.getType().equals("##OldMessage##notFound##")) {
+                        activity.getMessageList().forEach(message -> {
+                            model.addElement(message.getMessage());
+                        });
+                    }
                     this.gotOldMessages.put(selectedName, true);
                 }
             } catch (IOException ex) {
