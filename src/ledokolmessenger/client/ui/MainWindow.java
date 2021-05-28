@@ -1,6 +1,7 @@
 package ledokolmessenger.client.ui;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -17,6 +17,14 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+<<<<<<< HEAD
+=======
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+>>>>>>> parent of 035d7d0 (Added dynamic activities server)
 import ledokolmessenger.client.BlockingQueue;
 import ledokolmessenger.serialized.*;
 
@@ -30,12 +38,24 @@ public class MainWindow extends javax.swing.JFrame {
     private final Socket clientSocket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
+<<<<<<< HEAD
     private Map<String, MessagesPane> scrollPanes = new HashMap<>();
+=======
+    private final Object lock;
+    private Map<String, JScrollPane> scrollPanes = new HashMap<>();
+>>>>>>> parent of 035d7d0 (Added dynamic activities server)
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
     BlockingQueue activities = new BlockingQueue();
 
+    private JScrollPane getMyMessageTable() {
+        MessagesScrollPane scrollPane = new MessagesScrollPane();
+        scrollPane.configure();
+        return scrollPane;
+    }
+
     public MainWindow(Socket clientSocket, ObjectOutputStream outputStream, ObjectInputStream inputStream, String clientName) throws IOException, ClassNotFoundException {
         initComponents();
+        this.lock = new Object();
         this.clientSocket = clientSocket;
         this.clientName = clientName;
         this.jLabel1.setText(this.clientName);
@@ -44,16 +64,20 @@ public class MainWindow extends javax.swing.JFrame {
 
         try {
             DefaultListModel<String> model = new DefaultListModel<>();
-            this.friendList.setModel(model);
+            this.jList1.setModel(model);
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
+            JPanel startScreen = new JPanel();
+            JLabel label = new JLabel("LDKL");
+            startScreen.add(label);
+            startScreen.setBackground(Color.WHITE);
             this.messageField.setVisible(false);
             this.sendButton.setVisible(false);
+            this.messagePane.add(startScreen, "StartScreen");
             friends.forEach(friend -> {
                 model.addElement(friend.getClientName());
-                MessagesPane scrollPane = new MessagesPane();
-                scrollPane.configure();
-                this.messagePane.add(scrollPane, friend.getClientName());
-                this.scrollPanes.put(friend.getClientName(), scrollPane);
+                JScrollPane newScrollPane = this.getMyMessageTable();
+                this.messagePane.add(newScrollPane, friend.getClientName());
+                this.scrollPanes.put(friend.getClientName(), newScrollPane);
             });
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -62,10 +86,12 @@ public class MainWindow extends javax.swing.JFrame {
         Thread receiver = new Thread(() -> {
             try {
                 while (true) {
-                    Queue<SendableObject> respond = (LinkedList<SendableObject>) inputStream.readObject();
+                    Queue<SendableObject> respond = (Queue<SendableObject>) this.inputStream.readObject();
                     respond.forEach(e -> {
+                        System.out.println(e.getType());
                         activities.enqueue(e);
                     });
+
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -79,6 +105,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+<<<<<<< HEAD
 //        Thread dynamicAcitivitiesServer = new Thread(() -> {
 //            while (true) {
 //                try {
@@ -96,6 +123,29 @@ public class MainWindow extends javax.swing.JFrame {
 //        });
         receiver.start();
 //        dynamicAcitivitiesServer.start();
+=======
+        receiver.start();
+
+//        Timer timer = new Timer();
+//
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (!activities.isEmpty()) {
+//                    SendableObject activity = activities.remove();
+//                    System.out.println("Hello");
+//                }
+//            }
+//        }, 0, 100);
+        Thread activityServer = new Thread(() -> {
+            while (true) {
+                SendableObject activity = activities.dequeue();
+                System.out.println(activity.getType());
+            }
+        });
+
+        activityServer.start();
+>>>>>>> parent of 035d7d0 (Added dynamic activities server)
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -122,10 +172,10 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         mainMenu = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
-        friendList = new javax.swing.JList<>();
+        jList1 = new javax.swing.JList<>();
         jScrollPane3 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList<>();
-        addFriendPanel = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
         friendNameTextField = new javax.swing.JTextField();
         addFriend = new javax.swing.JButton();
         addFriendLabel = new javax.swing.JLabel();
@@ -167,13 +217,13 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        friendList.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        friendList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+        jList1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                friendListValueChanged(evt);
+                jList1ValueChanged(evt);
             }
         });
-        jScrollPane2.setViewportView(friendList);
+        jScrollPane2.setViewportView(jList1);
 
         mainMenu.addTab("Друзья", jScrollPane2);
 
@@ -184,8 +234,8 @@ public class MainWindow extends javax.swing.JFrame {
 
         mainMenu.addTab("Групповые чаты", jScrollPane3);
 
-        addFriendPanel.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        addFriendPanel.setMaximumSize(new java.awt.Dimension(100, 100));
+        jPanel2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jPanel2.setMaximumSize(new java.awt.Dimension(100, 100));
 
         friendNameTextField.setFont(new java.awt.Font("Verdana", 0, 16)); // NOI18N
         friendNameTextField.setBorder(null);
@@ -201,21 +251,21 @@ public class MainWindow extends javax.swing.JFrame {
         addFriendLabel.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         addFriendLabel.setText(" ");
 
-        javax.swing.GroupLayout addFriendPanelLayout = new javax.swing.GroupLayout(addFriendPanel);
-        addFriendPanel.setLayout(addFriendPanelLayout);
-        addFriendPanelLayout.setHorizontalGroup(
-            addFriendPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(addFriendPanelLayout.createSequentialGroup()
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(addFriendPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(friendNameTextField)
                     .addComponent(addFriend, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
                     .addComponent(addFriendLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        addFriendPanelLayout.setVerticalGroup(
-            addFriendPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(addFriendPanelLayout.createSequentialGroup()
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap(131, Short.MAX_VALUE)
                 .addComponent(addFriendLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -225,7 +275,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(115, 115, 115))
         );
 
-        mainMenu.addTab("Добавить друга", addFriendPanel);
+        mainMenu.addTab("Добавить друга", jPanel2);
 
         messagePane.setLayout(new java.awt.CardLayout());
 
@@ -243,8 +293,8 @@ public class MainWindow extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(messageField, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(messagePane, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+                    .addComponent(messagePane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -270,15 +320,26 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         if (!this.messageField.getText().trim().isEmpty()) {
+<<<<<<< HEAD
             try {
                 String recipient = this.friendList.getSelectedValue();
                 Message message = new Message("Message", this.messageField.getText(), this.clientName, recipient, java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
                 scrollPanes.get(recipient).getModel().addElement(message.getMessage());
+=======
+            JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+            JTable jTable = (JTable) scrollPane.getViewport().getView();
+            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
+            try {
+                Message message = new Message("Message", this.messageField.getText(), this.clientName, this.jList1.getSelectedValue(), java.time.LocalDateTime.now());
+                this.outputStream.writeObject(message);
+                model.addRow(new Object[]{this.clientName, message.getMessage(), " ", " "});
+>>>>>>> parent of 035d7d0 (Added dynamic activities server)
                 this.messageField.setText(" ");
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
+            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
         }
     }//GEN-LAST:event_sendButtonActionPerformed
 
@@ -291,13 +352,13 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_addFriendActionPerformed
 
-    private void friendListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_friendListValueChanged
+    private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
         if (!evt.getValueIsAdjusting()) {
-            String selectedName = this.friendList.getSelectedValue();
             try {
-                if (!this.gotOldMessages.containsKey(selectedName)) {
-                    ClientInfo user = new ClientInfo("getOldMessages", selectedName);
+                if (!this.gotOldMessages.containsKey(this.jList1.getSelectedValue())) {
+                    ClientInfo user = new ClientInfo("getOldMessages", this.jList1.getSelectedValue());
                     outputStream.writeObject(user);
+<<<<<<< HEAD
                     MessageList activity;
                     if (activities.getFirst().getType().equals("OldMessages")) {
                         activity = (MessageList) activities.dequeue();
@@ -306,28 +367,33 @@ public class MainWindow extends javax.swing.JFrame {
                         });
                     }
                     this.gotOldMessages.put(selectedName, true);
+=======
+                    this.gotOldMessages.put(this.jList1.getSelectedValue(), true);
+>>>>>>> parent of 035d7d0 (Added dynamic activities server)
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
+            CardLayout l = (CardLayout) this.messagePane.getLayout();
+            l.show(this.messagePane, this.jList1.getSelectedValue());
+            JScrollPane scrollPane = scrollPanes.get(this.jList1.getSelectedValue());
+            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
 
             if (!this.sendButton.isVisible()) {
                 this.sendButton.setVisible(true);
                 this.messageField.setVisible(true);
             }
-            CardLayout l = (CardLayout) this.messagePane.getLayout();
-            l.show(this.messagePane, this.friendList.getSelectedValue());
         }
-    }//GEN-LAST:event_friendListValueChanged
+    }//GEN-LAST:event_jList1ValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addFriend;
     private javax.swing.JLabel addFriendLabel;
-    private javax.swing.JPanel addFriendPanel;
-    private javax.swing.JList<String> friendList;
     private javax.swing.JTextField friendNameTextField;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JList<String> jList1;
     private javax.swing.JList<String> jList2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane mainMenu;

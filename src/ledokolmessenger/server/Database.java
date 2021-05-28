@@ -86,7 +86,7 @@ public class Database {
             String name = resultSet.getString("login");
             boolean is_online = resultSet.getBoolean("is_online");
             ClientInfo user = new ClientInfo("ListFriends", name, is_online);
-//            System.out.println(user.getClientName());
+            System.out.println(user.getClientName());
             listfr.add(user);
         }
 

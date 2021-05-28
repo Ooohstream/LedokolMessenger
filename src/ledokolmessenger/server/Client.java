@@ -35,6 +35,29 @@ public class Client implements Runnable {
         this.clientName = clientName;
         this.db = db;
         StartServer.addClient(this);
+
+        Timer sender = new Timer();
+
+        sender.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+<<<<<<< HEAD
+                    if (!activities.isEmpty()) {
+                        outputStream.writeUnshared(activities);
+                        System.out.print(activities.element().getType());
+=======
+                    if(!activities.isEmpty())
+                    {
+                        outputStream.writeObject(activities);
+>>>>>>> parent of 035d7d0 (Added dynamic activities server)
+                        activities.clear();
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }, 0, 100);
     }
 
     public String getClientName() {
@@ -43,24 +66,6 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-
-        Timer sender = new Timer();
-
-        sender.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    if (!activities.isEmpty()) {
-                        outputStream.writeUnshared(activities);
-                        System.out.print(activities.element().getType());
-                        activities.clear();
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }, 0, 100);
-
         System.out.println(this.clientName + " подключился");
         try {
             outputStream.writeObject(db.getListFriends(this.clientName));
@@ -96,7 +101,8 @@ public class Client implements Runnable {
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
                     }
-                    this.sendMessage(message);
+                    System.out.println(message.getMessage());
+                    activities.add(message);
                 }
             }
         } catch (IOException | ClassNotFoundException | SQLException ex) {
@@ -113,9 +119,9 @@ public class Client implements Runnable {
         try {
             db.sendMessage(message);
             if (client != null) {
-                client.activities.add(message);
+                client.outputStream.writeObject(message);
             }
-        } catch (SQLException ex) {
+        } catch (IOException | SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
