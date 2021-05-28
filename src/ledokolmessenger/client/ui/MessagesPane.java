@@ -19,7 +19,7 @@ public class MessagesPane extends JScrollPane {
         this.messageList = new JList();
         this.model = new DefaultListModel<>();
         messageList.setModel(model);
-//        jList.setCellRenderer(new MyListCellRenderer());
+        //messageList.setCellRenderer(new MyListCellRenderer());
         this.setViewportView(messageList);
     }
 

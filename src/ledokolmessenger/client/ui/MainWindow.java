@@ -66,6 +66,7 @@ public class MainWindow extends javax.swing.JFrame {
                 while (true) {
                     Queue<SendableObject> respond = (LinkedList<SendableObject>) inputStream.readObject();
                     respond.forEach(e -> {
+                        System.out.println(e);
                         activities.enqueue(e);
                     });
                 }
@@ -303,6 +304,7 @@ public class MainWindow extends javax.swing.JFrame {
                     ClientInfo user = new ClientInfo("getOldMessages", selectedName);
                     outputStream.writeObject(user);
                     MessageList activity;
+                    System.out.println(activities.getFirst());
                     if(activities.getFirst().getType().equals("OldMessages"))
                     {
                         activity = (MessageList) activities.dequeue();
