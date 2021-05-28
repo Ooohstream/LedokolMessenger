@@ -117,7 +117,7 @@ public class Database {
         ClientInfo user = null;
         ResultSet resultSet = st.executeQuery(s);
         if (!resultSet.isBeforeFirst()) {
-            return null;
+            return new ClientInfo("#notFound#", id);
         }
 
         while (resultSet.next()) {

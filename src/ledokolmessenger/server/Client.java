@@ -70,7 +70,7 @@ public class Client implements Runnable {
                     ClientInfo request1 = (ClientInfo) request;
                     ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
                     System.out.println(foundUser.getClientName());
-                    if (foundUser == null) {
+                    if (foundUser.getType().equals("#notFound#")) {
                         activities.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
                     } else if (foundUser.getType().equals("#friendavailable#")) {
                         activities.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
