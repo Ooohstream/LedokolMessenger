@@ -24,7 +24,7 @@ public class StartServer {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         ServerSocket serverSocket = null;
         Socket userSocket = null;
-        ConnectionInfo Info = new ConnectionInfo("postgres", System.getenv("PG_PASSWORD"), "jdbc:postgresql://localhost:5432/serverdb", "org.postgresql.Driver");
+        ConnectionInfo Info = new ConnectionInfo("postgres", System.getenv("PG_PASSWORD"), "jdbc:postgresql://localhost:5432/messenger", "org.postgresql.Driver");
         Connection con = null;
         try {
             serverSocket = new ServerSocket(PORT);

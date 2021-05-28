@@ -29,18 +29,22 @@ public class BlockingQueue {
         activities.add(item);
         notify();
     }
-    
-    public synchronized SendableObject getFirst()
-    {
-        if(!activities.isEmpty())
+
+    public synchronized SendableObject getFirst() {
+        if (!activities.isEmpty()) {
             return activities.get(0);
-        else return null;
+        } else {
+            return null;
+        }
+    }
+
+    public synchronized boolean isEmpty() {
+        return activities.isEmpty();
     }
 
     @Override
     public String toString() {
         return "BlockingQueue{" + "activities=" + activities + '}';
     }
-    
-    
+
 }

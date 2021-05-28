@@ -11,12 +11,25 @@ import ledokolmessenger.client.utillities.MyListCellRenderer;
  */
 public class MessagesPane extends JScrollPane {
 
+    private DefaultListModel<String> model;
+    private JList messageList;
+    
     public void configure() {
         this.setBorder(null);
-        JList jList = new JList();
-        DefaultListModel <String> model = new DefaultListModel<>();
-        jList.setModel(model);
-        jList.setCellRenderer(new MyListCellRenderer());
-        this.setViewportView(jList);
+        this.messageList = new JList();
+        this.model = new DefaultListModel<>();
+        messageList.setModel(model);
+//        jList.setCellRenderer(new MyListCellRenderer());
+        this.setViewportView(messageList);
     }
+
+    public DefaultListModel<String> getModel() {
+        return model;
+    }
+
+    public JList getMessageList() {
+        return messageList;
+    }
+    
+    
 }
