@@ -1,6 +1,7 @@
 package ledokolmessenger.client.ui;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -12,12 +13,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.JList;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import ledokolmessenger.client.BlockingQueue;
 import ledokolmessenger.serialized.*;
@@ -30,6 +29,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     String clientName;
     private final Socket clientSocket;
+    private final Object lock = new Object();
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private Map<String, MessagesPane> scrollPanes = new HashMap<>();
@@ -50,6 +50,12 @@ public class MainWindow extends javax.swing.JFrame {
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
             this.messageField.setVisible(false);
             this.sendButton.setVisible(false);
+            JScrollPane startScreen = new JScrollPane();
+            startScreen.setBackground(Color.white);
+            JLabel startScreenLabel = new JLabel();
+            startScreenLabel.setText("LDKL");
+            startScreen.setViewportView(startScreenLabel);
+            messagePane.add(startScreen);
             friends.forEach(friend -> {
                 model.addElement(friend.getClientName());
                 MessagesPane scrollPane = new MessagesPane();
@@ -69,6 +75,9 @@ public class MainWindow extends javax.swing.JFrame {
                         System.out.println(e);
                         activities.enqueue(e);
                     });
+                    synchronized (lock) {
+                        lock.notify();
+                    }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -97,8 +106,6 @@ public class MainWindow extends javax.swing.JFrame {
                 }
             }
         });
-
-
         receiver.start();
         dynamicAcitivitiesServer.start();
 
@@ -303,18 +310,21 @@ public class MainWindow extends javax.swing.JFrame {
                 if (!this.gotOldMessages.containsKey(selectedName)) {
                     ClientInfo user = new ClientInfo("getOldMessages", selectedName);
                     outputStream.writeObject(user);
+                    synchronized (lock) {
+                        lock.wait();
+                    }
                     MessageList activity;
-                    System.out.println(activities.getFirst());
-                    if(activities.getFirst().getType().equals("OldMessages"))
-                    {
+                    if (activities.getFirst().getType().equals("OldMessages")) {
                         activity = (MessageList) activities.dequeue();
                         activity.getMessageList().forEach(message -> {
                             scrollPanes.get(selectedName).getModel().addElement(message.getMessage());
-                    });
+                        });
                     }
                     this.gotOldMessages.put(selectedName, true);
                 }
             } catch (IOException ex) {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
 
