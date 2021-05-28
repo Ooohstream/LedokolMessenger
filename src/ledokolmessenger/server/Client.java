@@ -35,23 +35,6 @@ public class Client implements Runnable {
         this.clientName = clientName;
         this.db = db;
         StartServer.addClient(this);
-
-        Timer timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    if(!activities.isEmpty())
-                    {
-                        outputStream.writeObject(activities);
-                        activities.clear();
-                    }
-                } catch (IOException ex) {
-                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }, 0, 100);
     }
 
     public String getClientName() {
@@ -60,6 +43,23 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
+
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    if (!activities.isEmpty()) {
+                        outputStream.writeUnshared(activities);
+                        activities.clear();
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }, 0, 100);
+
         System.out.println(this.clientName + " подключился");
         try {
             outputStream.writeObject(db.getListFriends(this.clientName));
@@ -93,8 +93,7 @@ public class Client implements Runnable {
                     if (message.getMessage().equalsIgnoreCase("##session##end##")) {
                         break;
                     }
-                    System.out.println(message.getMessage());
-                    activities.add(message);
+                    this.sendMessage(message);
                 }
 
                 if (request.getType().equals("Update")) {
@@ -117,9 +116,9 @@ public class Client implements Runnable {
         try {
             db.sendMessage(message);
             if (client != null) {
-                client.outputStream.writeObject(message);
+                client.activities.add(message);
             }
-        } catch (IOException | SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
