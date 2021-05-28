@@ -21,7 +21,7 @@ public class EntranceFrame extends javax.swing.JFrame {
 
     private Socket clientSocket;
     private final MessageDigest sha512;
-    private final String IP = "25.88.153.103";
+    private final String IP = "localhost";
     private final int PORT = 3443;
 
     public EntranceFrame() throws NoSuchAlgorithmException {
