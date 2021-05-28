@@ -25,7 +25,7 @@ public class MyListCellRenderer implements ListCellRenderer{
 
         // icon
         iconPanel = new JPanel(new BorderLayout());
-        l = new JLabel("icon"); // <-- this will be an icon instead of a
+        l = new JLabel(); // <-- this will be an icon instead of a
         // text
         iconPanel.add(l, BorderLayout.NORTH);
         p.add(iconPanel, BorderLayout.WEST);
@@ -41,7 +41,10 @@ public class MyListCellRenderer implements ListCellRenderer{
     public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected,
             final boolean hasFocus) {
 
+        String text = (String) value;
         ta.setText((String) value);
+        
+        l.setText("");
         int width = list.getWidth();
         // this is just to lure the ta's internal sizing mechanism into action
         if (width > 0) {
