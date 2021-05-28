@@ -358,7 +358,6 @@ public class MainWindow extends javax.swing.JFrame {
                 if (!this.gotOldMessages.containsKey(this.jList1.getSelectedValue())) {
                     ClientInfo user = new ClientInfo("getOldMessages", this.jList1.getSelectedValue());
                     outputStream.writeObject(user);
-<<<<<<< HEAD
                     MessageList activity;
                     if (activities.getFirst().getType().equals("OldMessages")) {
                         activity = (MessageList) activities.dequeue();
@@ -367,9 +366,6 @@ public class MainWindow extends javax.swing.JFrame {
                         });
                     }
                     this.gotOldMessages.put(selectedName, true);
-=======
-                    this.gotOldMessages.put(this.jList1.getSelectedValue(), true);
->>>>>>> parent of 035d7d0 (Added dynamic activities server)
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
