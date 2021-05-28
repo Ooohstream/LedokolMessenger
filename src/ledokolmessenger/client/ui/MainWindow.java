@@ -316,9 +316,12 @@ public class MainWindow extends javax.swing.JFrame {
                     MessageList activity;
                     if (activities.getFirst().getType().equals("OldMessages")) {
                         activity = (MessageList) activities.dequeue();
-                        activity.getMessageList().forEach(message -> {
-                            scrollPanes.get(selectedName).getModel().addElement(message.getMessage());
-                        });
+                        if (activity.getMessageList() != null) {
+                            activity.getMessageList().forEach(message -> {
+                                scrollPanes.get(selectedName).getModel().addElement(message.getMessage());
+                            });
+                        }
+
                     }
                     this.gotOldMessages.put(selectedName, true);
                     this.scrollPanes.get(selectedName).getVerticalScrollBar().setValue(this.scrollPanes.get(selectedName).getVerticalScrollBar().getMaximum());
