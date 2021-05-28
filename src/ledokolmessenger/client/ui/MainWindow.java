@@ -72,7 +72,6 @@ public class MainWindow extends javax.swing.JFrame {
                 while (true) {
                     Queue<SendableObject> respond = (LinkedList<SendableObject>) inputStream.readObject();
                     respond.forEach(e -> {
-                        System.out.println(e);
                         activities.enqueue(e);
                     });
                     synchronized (lock) {
@@ -316,9 +315,12 @@ public class MainWindow extends javax.swing.JFrame {
                     MessageList activity;
                     if (activities.getFirst().getType().equals("OldMessages")) {
                         activity = (MessageList) activities.dequeue();
-                        activity.getMessageList().forEach(message -> {
-                            scrollPanes.get(selectedName).getModel().addElement(message.getMessage());
-                        });
+                        if (activity.getMessageList() != null) {
+                            activity.getMessageList().forEach(message -> {
+                                scrollPanes.get(selectedName).getModel().addElement(message.getMessage());
+                            });
+                        }
+
                     }
                     this.gotOldMessages.put(selectedName, true);
                 }
