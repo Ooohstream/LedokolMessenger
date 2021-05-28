@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -30,7 +32,7 @@ public class MainWindow extends javax.swing.JFrame {
     private final Socket clientSocket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-    private Map<String, JScrollPane> scrollPanes = new HashMap<>();
+    private Map<String, MessagesPane> scrollPanes = new HashMap<>();
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
     BlockingQueue activities = new BlockingQueue();
 
@@ -81,19 +83,20 @@ public class MainWindow extends javax.swing.JFrame {
 
         Thread dynamicAcitivitiesServer = new Thread(() -> {
             while (true) {
-                if (activities.getFirst() != null) {
-                    if (activities.getFirst().getType().equals("Message")) {
-                        Message newMessage = (Message) activities.dequeue();
-                        String selectedName = newMessage.getSender();//this.friendList.getSelectedValue();
-                        JScrollPane scrollPane = scrollPanes.get(selectedName);
-                        JList jList = (JList) scrollPane.getViewport().getView();
-                        DefaultListModel<String> model = (DefaultListModel<String>) jList.getModel();
-                        model.addElement(newMessage.getMessage());
+                try {
+                    if (!activities.isEmpty()) {
+                        if (activities.getFirst().getType().equals("Message")) {
+                            Message message = (Message) activities.dequeue();
+                            scrollPanes.get(message.getSender()).getModel().addElement(message.getMessage());
+                        }
                     }
-
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
+
 
         receiver.start();
         dynamicAcitivitiesServer.start();
@@ -271,14 +274,11 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         if (!this.messageField.getText().trim().isEmpty()) {
-            String selectedName = this.friendList.getSelectedValue();
-            JScrollPane scrollPane = scrollPanes.get(selectedName);
-            JList jList = (JList) scrollPane.getViewport().getView();
-            DefaultListModel<String> model = (DefaultListModel<String>) jList.getModel();
             try {
-                Message message = new Message("Message", this.messageField.getText(), this.clientName, selectedName, java.time.LocalDateTime.now());
+                String recipient = this.friendList.getSelectedValue();
+                Message message = new Message("Message", this.messageField.getText(), this.clientName, recipient, java.time.LocalDateTime.now());
                 this.outputStream.writeObject(message);
-                model.addElement(message.getMessage());
+                scrollPanes.get(recipient).getModel().addElement(message.getMessage());
                 this.messageField.setText(" ");
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -302,14 +302,13 @@ public class MainWindow extends javax.swing.JFrame {
                 if (!this.gotOldMessages.containsKey(selectedName)) {
                     ClientInfo user = new ClientInfo("getOldMessages", selectedName);
                     outputStream.writeObject(user);
-                    MessageList activity = (MessageList) activities.dequeue();
-                    JScrollPane scrollPane = scrollPanes.get(selectedName);
-                    JList jList = (JList) scrollPane.getViewport().getView();
-                    DefaultListModel<String> model = (DefaultListModel<String>) jList.getModel();
-                    if (!activity.getType().equals("##OldMessage##notFound##")) {
+                    MessageList activity;
+                    if(activities.getFirst().getType().equals("OldMessages"))
+                    {
+                        activity = (MessageList) activities.dequeue();
                         activity.getMessageList().forEach(message -> {
-                            model.addElement(message.getMessage());
-                        });
+                            scrollPanes.get(selectedName).getModel().addElement(message.getMessage());
+                    });
                     }
                     this.gotOldMessages.put(selectedName, true);
                 }

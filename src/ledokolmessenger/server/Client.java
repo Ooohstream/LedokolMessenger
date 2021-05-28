@@ -44,9 +44,9 @@ public class Client implements Runnable {
     @Override
     public void run() {
 
-        Timer timer = new Timer();
+        Timer sender = new Timer();
 
-        timer.schedule(new TimerTask() {
+        sender.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -97,12 +97,6 @@ public class Client implements Runnable {
                         break;
                     }
                     this.sendMessage(message);
-                }
-
-                if (request.getType().equals("Update")) {
-                    UpdateData update = new UpdateData("Update", db.getListFriends(this.clientName));
-                    activities.add(update);
-                    //queue.add(new Respond("Update", 200, "Updated", java.time.LocalDateTime.now()));
                 }
             }
         } catch (IOException | ClassNotFoundException | SQLException ex) {
