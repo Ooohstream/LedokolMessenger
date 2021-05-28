@@ -99,7 +99,7 @@ public class Client implements Runnable {
 
                 if (request.getType().equals("Update")) {
                     UpdateData update = new UpdateData("Update", db.getListFriends(this.clientName));
-                    queue.add(update);
+                    activities.add(update);
                     //queue.add(new Respond("Update", 200, "Updated", java.time.LocalDateTime.now()));
                 }
             }

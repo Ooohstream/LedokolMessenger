@@ -4,30 +4,23 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
+import ledokolmessenger.client.BlockingQueue;
 import ledokolmessenger.serialized.*;
 
 /**
@@ -43,7 +36,7 @@ public class MainWindow extends javax.swing.JFrame {
     private final Object lock;
     private Map<String, JScrollPane> scrollPanes = new HashMap<>();
     private Map<String, Boolean> gotOldMessages = new HashMap<>();
-    Queue<SendableObject> activities = new LinkedList<>();
+    BlockingQueue activities = new BlockingQueue();
 
     private JScrollPane getMyMessageTable() {
         MessagesScrollPane scrollPane = new MessagesScrollPane();
@@ -85,7 +78,11 @@ public class MainWindow extends javax.swing.JFrame {
             try {
                 while (true) {
                     Queue<SendableObject> respond = (Queue<SendableObject>) this.inputStream.readObject();
-                    this.mergeActivities(respond);
+                    respond.forEach(e -> {
+                        System.out.println(e.getType());
+                        activities.enqueue(e);
+                    });
+
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -101,59 +98,25 @@ public class MainWindow extends javax.swing.JFrame {
 
         receiver.start();
 
-        Timer timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (!activities.isEmpty()) {
-                    SendableObject activity = activities.remove();
-                    switch (activity.getType()){
-                        case "Respond":
-                            Respond respond1 = (Respond) activity;
-                            if (respond1.getRespondCode() == 200) {
-                                addFriendLabel.setForeground(Color.GREEN);
-                                addFriendLabel.setText(respond1.getRespond());
-
-                            } else if (respond1.getRespondCode() == 404) {
-                                addFriendLabel.setForeground(Color.RED);
-                                addFriendLabel.setText(respond1.getRespond());
-                            }
-                            break;
-                        case "OldMessages":
-                            MessageList oldMessages = (MessageList) activity;
-                            JScrollPane scrollPane = scrollPanes.get(jList1.getSelectedValue());
-                            JTable jTable = (JTable) scrollPane.getViewport().getView();
-                            DefaultTableModel model = (DefaultTableModel) jTable.getModel();
-                            TableColumnModel colModel = jTable.getColumnModel();
-                            colModel.getColumn(0).setPreferredWidth(25);
-                            oldMessages.getMessageList().forEach(message -> {
-                                if (message.getSender().equals(jList1.getSelectedValue())) {
-                                    model.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
-                                } else {
-                                    model.addRow(new Object[]{message.getSender(), message.getMessage(), " ", " "});
-                                }
-                            });
-                            scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
-                            break;
-                        case "Message":
-                            Message message = (Message) activity;
-                            JScrollPane scrollPane2 = scrollPanes.get(message.getSender());
-                            JTable jTable2 = (JTable) scrollPane2.getViewport().getView();
-                            DefaultTableModel model2 = (DefaultTableModel) jTable2.getModel();
-                            model2.addRow(new Object[]{" ", " ", message.getMessage(), message.getSender()});
-                            scrollPane2.getVerticalScrollBar().setValue(scrollPane2.getVerticalScrollBar().getMaximum());
-                            break;
-                        case "Update":
-                            Respond respond2 = (Respond) activity;
-                            System.out.println(respond2.getRespond());
-                            break;
-                        default:
-                            break;
-                    }
-                }
+//        Timer timer = new Timer();
+//
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (!activities.isEmpty()) {
+//                    SendableObject activity = activities.remove();
+//                    System.out.println("Hello");
+//                }
+//            }
+//        }, 0, 100);
+        Thread activityServer = new Thread(() -> {
+            while (true) {
+                SendableObject activity = activities.dequeue();
+                System.out.println(activity.getType());
             }
-        }, 0, 100);
+        });
+
+        activityServer.start();
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -390,10 +353,4 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel messagePane;
     private javax.swing.JButton sendButton;
     // End of variables declaration//GEN-END:variables
-
-    public void mergeActivities(Queue<SendableObject> inputQueue) {
-        inputQueue.forEach(e -> {
-            this.activities.add(e);
-        });
-    }
 }
