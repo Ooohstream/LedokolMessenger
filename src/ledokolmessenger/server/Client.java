@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -63,6 +64,7 @@ public class Client implements Runnable {
         System.out.println(this.clientName + " подключился");
         try {
             outputStream.writeObject(db.getListFriends(this.clientName));
+            outputStream.writeObject(db.getListFriendRequests(this.clientName));
             while (true) {
                 SendableObject request = (SendableObject) inputStream.readObject();
 
@@ -72,22 +74,27 @@ public class Client implements Runnable {
                     System.out.println(foundUser.getClientName());
                     if (foundUser.getType().equals("##notFound##")) {
                         activities.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
-                    }
-                    else if (foundUser.getType().equals("##It##is##you##")) {
+                    } else if (foundUser.getType().equals("##It##is##you##")) {
                         activities.add(new Respond("Respond", 404, "Нельзя добавить самого себя", java.time.LocalDateTime.now()));
-                    }
-                    else if (foundUser.getType().equals("##friend##available##")) {
+                    } else if (foundUser.getType().equals("##friend##available##")) {
                         activities.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
-                    }
-                    else if (foundUser.getType().equals("##request##sent##")) {
+                    } else if (foundUser.getType().equals("##request##sent##")) {
                         activities.add(new Respond("Respond", 404, "Заявка уже была отправлена", java.time.LocalDateTime.now()));
-                    }
-                    else if (foundUser.getType().equals("##check##request##")) {
+                    } else if (foundUser.getType().equals("##check##request##")) {
                         activities.add(new Respond("Respond", 404, "Проверьте заявки на дружбу", java.time.LocalDateTime.now()));
                     } else {
                         activities.add(new Respond("Respond", 200, "Заявка на дружбу с " + foundUser.getClientName() + " отправлена", java.time.LocalDateTime.now()));
+                        sendMessage(new Message("RequestFriend", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
                         //Client client = (Client) StartServer.getClientsOnline().get(message.getRecipient());
                         //outputStream.writeObject(foundUser);
+                    }
+                }
+
+                if (request.getType().equals("approveFriend")) {
+                    ClientInfo message = (ClientInfo) request;
+                    ClientInfo user = db.approveFriend(this.clientName, message.getClientName(), message.getIs_online());
+                    if (user != null) {
+                        sendMessage(new Message("approveRequestFriend", this.clientName + " принял заявку в друзья", this.clientName, user.getClientName(), java.time.LocalDateTime.now()));
                     }
                 }
 
@@ -121,7 +128,9 @@ public class Client implements Runnable {
         Client client = (Client) StartServer.getClientsOnline().get(message.getRecipient());
 
         try {
-            db.sendMessage(message);
+            if (message.getType().equals("Message")) {
+                db.sendMessage(message);
+            }
             if (client != null) {
                 client.activities.add(message);
             }

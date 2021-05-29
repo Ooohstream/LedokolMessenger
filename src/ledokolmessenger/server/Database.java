@@ -92,6 +92,27 @@ public class Database {
 
         return listfr;
     }
+    
+        public List<ClientInfo> getListFriendRequests(String id) throws SQLException {
+        List<ClientInfo> listfr = new ArrayList<ClientInfo>();
+
+        //String s = "SELECT * from users where login != '" + id + "'";
+        String s = "SELECT * from users JOIN list_friends ON list_friends.user1 = login where list_friends.user2 = '" + id + "' and status=false";
+        ResultSet resultSet = st.executeQuery(s);
+        if (!resultSet.isBeforeFirst()) {
+            return listfr;
+        }
+
+        while (resultSet.next()) {
+            String name = resultSet.getString("login");
+            boolean is_online = resultSet.getBoolean("is_online");
+            ClientInfo user = new ClientInfo("ListFriendRequest", name, is_online);
+//            System.out.println(user.getClientName());
+            listfr.add(user);
+        }
+
+        return listfr;
+    }
 
     public ClientInfo getUser(String id) throws SQLException {
         ClientInfo user = null;
@@ -124,11 +145,11 @@ public class Database {
             boolean is_online = resultSet.getBoolean("is_online");
             user = new ClientInfo("getUser", name, is_online);
         }
-        
-        if(Myself.equals(id)){
-           return new ClientInfo("##It##is##you##", user.getClientName()); 
+
+        if (Myself.equals(id)) {
+            return new ClientInfo("##It##is##you##", user.getClientName());
         }
-        
+
         String s1 = "user1='" + Myself + "' AND user2='" + id + "'";
         String s2 = "user1='" + id + "' AND user2='" + Myself + "'";
         s = "SELECT * from list_friends where " + s1 + " AND status=true";
@@ -153,15 +174,17 @@ public class Database {
         return user;
     }
 
-    public void approveFriend(String Myself, String id, boolean is_status) throws SQLException {
+    public ClientInfo approveFriend(String Myself, String id, boolean is_status) throws SQLException {
         if (is_status == true) {
-            String s = "INSERT into list_friends values ('" + Myself + "', '" + id + "',1)";
+            String s = "INSERT into list_friends values ('" + Myself + "', '" + id + "',true)";
             st.execute(s);
             s = "UPDATE list_friends SET status=true WHERE user1 = '" + id + "' AND user2 = '" + Myself + "'";
             st.executeUpdate(s);
+            return getUser(id);
         } else {
             String s = "DELETE from list_friends where user1 = '" + id + "' AND user2 = '" + Myself + "' and status = false";
             st.execute(s);
+            return null;
         }
     }
 

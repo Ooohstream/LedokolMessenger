@@ -48,6 +48,7 @@ public class MainWindow extends javax.swing.JFrame {
             DefaultListModel<String> model = new DefaultListModel<>();
             this.friendList.setModel(model);
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
+            List<ClientInfo> friendRequests = (List<ClientInfo>) inputStream.readObject();
             this.messageField.setVisible(false);
             this.sendButton.setVisible(false);
             JScrollPane startScreen = new JScrollPane();
