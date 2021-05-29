@@ -67,15 +67,26 @@ public class Client implements Runnable {
                 SendableObject request = (SendableObject) inputStream.readObject();
 
                 if (request.getType().equals("addFriend")) {
-                    ClientInfo request1 = (ClientInfo) request;
-                    ClientInfo foundUser = db.addUser(request1.getClientName(), this.clientName);
+                    ClientInfo user = (ClientInfo) request;
+                    ClientInfo foundUser = db.CheckUserFriends(user.getClientName(), this.clientName);
                     System.out.println(foundUser.getClientName());
-                    if (foundUser.getType().equals("#notFound#")) {
+                    if (foundUser.getType().equals("##notFound##")) {
                         activities.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
-                    } else if (foundUser.getType().equals("#friendavailable#")) {
+                    }
+                    else if (foundUser.getType().equals("##It##is##you##")) {
+                        activities.add(new Respond("Respond", 404, "Нельзя добавить самого себя", java.time.LocalDateTime.now()));
+                    }
+                    else if (foundUser.getType().equals("##friend##available##")) {
                         activities.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
+                    }
+                    else if (foundUser.getType().equals("##request##sent##")) {
+                        activities.add(new Respond("Respond", 404, "Заявка уже была отправлена", java.time.LocalDateTime.now()));
+                    }
+                    else if (foundUser.getType().equals("##check##request##")) {
+                        activities.add(new Respond("Respond", 404, "Проверьте заявки на дружбу", java.time.LocalDateTime.now()));
                     } else {
-                        activities.add(new Respond("Respond", 200, "Пользователь " + foundUser.getClientName() + " добавлен в друзья", java.time.LocalDateTime.now()));
+                        activities.add(new Respond("Respond", 200, "Заявка на дружбу с " + foundUser.getClientName() + " отправлена", java.time.LocalDateTime.now()));
+                        //Client client = (Client) StartServer.getClientsOnline().get(message.getRecipient());
                         //outputStream.writeObject(foundUser);
                     }
                 }
@@ -85,8 +96,7 @@ public class Client implements Runnable {
                     MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
-                    }
-                    else{
+                    } else {
                         activities.add(new MessageList("OldMessages", null));
                     }
                 }

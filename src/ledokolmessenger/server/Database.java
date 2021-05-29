@@ -76,7 +76,7 @@ public class Database {
         List<ClientInfo> listfr = new ArrayList<ClientInfo>();
 
         //String s = "SELECT * from users where login != '" + id + "'";
-        String s = "SELECT * from users JOIN list_friends ON list_friends.user2 = login where list_friends.user1 = '" + id + "'";
+        String s = "SELECT * from users JOIN list_friends ON list_friends.user2 = login where list_friends.user1 = '" + id + "' and status=true";
         ResultSet resultSet = st.executeQuery(s);
         if (!resultSet.isBeforeFirst()) {
             return listfr;
@@ -111,37 +111,58 @@ public class Database {
         return user;
     }
 
-    public ClientInfo addUser(String id, String Myself) throws SQLException {
-
+    public ClientInfo CheckUserFriends(String id, String Myself) throws SQLException {
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;
         ResultSet resultSet = st.executeQuery(s);
         if (!resultSet.isBeforeFirst()) {
-            return new ClientInfo("#notFound#", id);
+            return new ClientInfo("##notFound##", id);
         }
 
         while (resultSet.next()) {
             String name = resultSet.getString("login");
             boolean is_online = resultSet.getBoolean("is_online");
             user = new ClientInfo("getUser", name, is_online);
-            //System.out.println(user.getClientName());
         }
-        s = "SELECT * from list_friends where user1='" + Myself + "' AND user2='" + id + "'";
+        
+        if(Myself.equals(id)){
+           return new ClientInfo("##It##is##you##", user.getClientName()); 
+        }
+        
+        String s1 = "user1='" + Myself + "' AND user2='" + id + "'";
+        String s2 = "user1='" + id + "' AND user2='" + Myself + "'";
+        s = "SELECT * from list_friends where " + s1 + " AND status=true";
         resultSet = st.executeQuery(s);
         if (resultSet.isBeforeFirst()) {
-            return new ClientInfo("#friendavailable#",user.getClientName());
+            return new ClientInfo("##friend##available##", user.getClientName());
         }
-        s = "SELECT * from list_friends where user1='" + id + "' AND user2='" + Myself + "'";
+        s = "SELECT * from list_friends where " + s1 + " AND status=false";
         resultSet = st.executeQuery(s);
         if (resultSet.isBeforeFirst()) {
-            return new ClientInfo("#friendavailable#",user.getClientName());
+            return new ClientInfo("##request##sent##", user.getClientName());
         }
 
-        s = "INSERT into list_friends values ('" + Myself + "', '" + id + "')";
-        st.execute(s);
-        s = "INSERT into list_friends values ('" + id + "', '" + Myself + "')";
+        s = "SELECT * from list_friends where " + s2 + " AND status=false";
+        resultSet = st.executeQuery(s);
+        if (resultSet.isBeforeFirst()) {
+            return new ClientInfo("##check##request##", user.getClientName());
+        }
+
+        s = "INSERT into list_friends values ('" + Myself + "', '" + id + "',false)";
         st.execute(s);
         return user;
+    }
+
+    public void approveFriend(String Myself, String id, boolean is_status) throws SQLException {
+        if (is_status == true) {
+            String s = "INSERT into list_friends values ('" + Myself + "', '" + id + "',1)";
+            st.execute(s);
+            s = "UPDATE list_friends SET status=true WHERE user1 = '" + id + "' AND user2 = '" + Myself + "'";
+            st.executeUpdate(s);
+        } else {
+            String s = "DELETE from list_friends where user1 = '" + id + "' AND user2 = '" + Myself + "' and status = false";
+            st.execute(s);
+        }
     }
 
     public MessageList getOldMessages(String myLogin, String userLogin) throws SQLException {
@@ -166,7 +187,7 @@ public class Database {
             if (ts != null) {
                 date_create = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts.getTime()), ZoneOffset.UTC);
             }
-            
+
             Message message = new Message("Message", content, sender, recipient, date_create);
             oldMessages.add(message);
         }

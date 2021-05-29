@@ -297,7 +297,25 @@ public class MainWindow extends javax.swing.JFrame {
         ClientInfo newFriend = new ClientInfo("addFriend", this.friendNameTextField.getText());
         try {
             outputStream.writeObject(newFriend);
+            synchronized (lock) {
+                lock.wait();
+            }
+            Respond respond;
+            if (activities.getFirst().getType().equals("Respond")) {
+                respond = (Respond) activities.dequeue();
+                System.out.println(respond.getRespondCode());
+                if(respond.getRespondCode()==404){
+                    addFriendLabel.setText(respond.getRespond());
+                }
+                if(respond.getRespondCode()==200){
+                   addFriendLabel.setText("Заявка на дружбу отправлена"); 
+                   //
+                }
+            }
+            
         } catch (IOException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_addFriendActionPerformed
