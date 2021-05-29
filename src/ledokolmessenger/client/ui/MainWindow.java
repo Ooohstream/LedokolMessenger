@@ -75,7 +75,7 @@ public class MainWindow extends javax.swing.JFrame {
                         activities.enqueue(e);
                     });
                     synchronized (lock) {
-                        lock.notify();
+                        lock.notifyAll();
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -96,7 +96,8 @@ public class MainWindow extends javax.swing.JFrame {
                     if (!activities.isEmpty()) {
                         if (activities.getFirst().getType().equals("Message")) {
                             Message message = (Message) activities.dequeue();
-                            scrollPanes.get(message.getSender()).getModel().addElement(message.getMessage());
+                            scrollPanes.get(message.getSender()).getModel().addElement(message.getSender() + ": " + 
+                                    message.getMessage());
                         }
                     }
                     Thread.sleep(100);
@@ -341,19 +342,19 @@ public class MainWindow extends javax.swing.JFrame {
 
                     }
                     this.gotOldMessages.put(selectedName, true);
+                    this.scrollPanes.get(selectedName).getVerticalScrollBar().setValue(this.scrollPanes.get(selectedName).getVerticalScrollBar().getMaximum());
                 }
             } catch (IOException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+            CardLayout l = (CardLayout) this.messagePane.getLayout();
+            l.show(this.messagePane, this.friendList.getSelectedValue());
             if (!this.sendButton.isVisible()) {
                 this.sendButton.setVisible(true);
                 this.messageField.setVisible(true);
             }
-            CardLayout l = (CardLayout) this.messagePane.getLayout();
-            l.show(this.messagePane, this.friendList.getSelectedValue());
         }
     }//GEN-LAST:event_friendListValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
