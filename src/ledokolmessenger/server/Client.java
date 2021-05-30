@@ -63,6 +63,7 @@ public class Client implements Runnable {
         try {
             outputStream.writeObject(db.getListFriends(this.clientName));
             outputStream.writeObject(db.getListFriendRequests(this.clientName));
+            outputStream.writeObject(db.getListGroups(this.clientName));
             while (true) {
                 SendableObject request = (SendableObject) inputStream.readObject();
 
