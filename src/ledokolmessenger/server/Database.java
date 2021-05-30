@@ -113,6 +113,24 @@ public class Database {
         return listfr;
     }
 
+    public List<ClientInfo> getListGroups(String id) throws SQLException {
+        List<ClientInfo> listfr = new ArrayList<ClientInfo>();
+
+        String s = "SELECT * from groups JOIN group_users ON group_id = name where user_id = '" + id + "'";
+        ResultSet resultSet = st.executeQuery(s);
+        if (!resultSet.isBeforeFirst()) {
+            return listfr;
+        }
+
+        while (resultSet.next()) {
+            String name = resultSet.getString("name");
+            ClientInfo user = new ClientInfo("ListGroups", name);
+            listfr.add(user);
+        }
+
+        return listfr;
+    }
+
     public ClientInfo getUser(String id) throws SQLException {
         ClientInfo user = null;
 
@@ -228,6 +246,22 @@ public class Database {
         st.execute(s);
 
         return mess;
+    }
+
+    public ClientInfo CreateGroup(String myLogin, String nameGroup) throws SQLException {
+        String s = "SELECT * from groups where name = '" + nameGroup + "'";
+        ClientInfo group = null;
+        ResultSet resultSet = st.executeQuery(s);
+        if (resultSet.isBeforeFirst()) {
+            return new ClientInfo("##name##is##taken##", nameGroup);
+        }
+
+        s = "INSERT into grops values ('" + nameGroup + "', '" + myLogin + "')";
+        st.execute(s);
+
+        s = "INSERT into group_users values ('" + nameGroup + "', '" + myLogin + "')";
+        st.execute(s);
+        return new ClientInfo(nameGroup, myLogin);
     }
 
 }
