@@ -124,25 +124,20 @@ public class Client implements Runnable {
                 
                 if (request.getType().equals("createGroup")){
                     ClientInfo group = (ClientInfo) request;
-                    ClientInfo createdGroup = db.CreateGroup(this.clientName,group.getClientName());
+                    ClientInfo createdGroup = db.CreateGroup(this.clientName, group.getClientName());
                     if(createdGroup.getType().equals("##name##is##taken##"))
-                    {
                         activities.add(new Respond("Respond", 404, "Такое название уже занято", java.time.LocalDateTime.now()));
-                    }
                     else
-                    {
                        activities.add(new Respond("Respond", 200, "Группа создана", java.time.LocalDateTime.now())); 
-                    }
                 }
                 
                 if (request.getType().equals("getOldMessagesGroup")) {
                     ClientInfo request1 = (ClientInfo) request;
                     MessageList oldMessages = db.getOldMessagesGroup(this.clientName, request1.getClientName());
-                    if (oldMessages != null) {
+                    if (oldMessages != null)
                         activities.add(oldMessages);
-                    } else {
+                    else
                         activities.add(new MessageList("OldMessages", null));
-                    }
                 }
                 
                 
