@@ -263,8 +263,8 @@ public class Database {
         st.execute(s);
         return new ClientInfo(nameGroup, myLogin);
     }
-    
-        public MessageList getOldMessagesGroup(String myLogin, String nameGroup) throws SQLException {
+
+    public MessageList getOldMessagesGroup(String myLogin, String nameGroup) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
         String S = "SELECT * FROM messages where "
@@ -292,6 +292,53 @@ public class Database {
         MessageList messages = new MessageList("OldMessagesGroup", oldMessages);
 
         return messages;
+    }
+
+    public List<ClientInfo> sendMessageGroup(Message mess) throws SQLException {
+        String s
+                = "INSERT INTO messages_group (sender, recipient , content, date_create) "
+                + "VALUES ( '" + mess.getSender() + "', '" + mess.getRecipient() + "', '" + mess.getMessage() + "', '" + mess.getTime() + "' ) ";
+        st.execute(s);
+
+        List<ClientInfo> listfr = new ArrayList<ClientInfo>();
+
+        s = "SELECT * from users JOIN group_users ON user_id = login where group_id = '" + mess.getRecipient() + "'";
+        ResultSet resultSet = st.executeQuery(s);
+        if (!resultSet.isBeforeFirst()) {
+            return listfr;
+        }
+        while (resultSet.next()) {
+            String name = resultSet.getString("login");
+            ClientInfo user = new ClientInfo("Members", name);
+            listfr.add(user);
+        }
+
+        return listfr;
+    }
+
+    public ClientInfo FindGroup(String myLogin, String nameGroup) throws SQLException {
+        String s = "SELECT * from groups where name = '" + nameGroup + "'";
+        ClientInfo group = null;
+        ResultSet resultSet = st.executeQuery(s);
+        if (!resultSet.isBeforeFirst()) {
+            return new ClientInfo("##notFound##", nameGroup);
+        }
+
+        while (resultSet.next()) {
+            String name = resultSet.getString("name");
+            group = new ClientInfo("Group", name);
+        }
+
+        String s1 = "group_id='" + nameGroup + "' AND user_id='" + myLogin + "'";
+        s = "SELECT * from group_users where " + s1;
+        resultSet = st.executeQuery(s);
+        if (resultSet.isBeforeFirst()) {
+            return new ClientInfo("##group##available##", group.getClientName());
+        }
+
+        s = "INSERT into group_users values ('" + nameGroup + "', '" + myLogin + "')";
+        st.execute(s);
+        return group;
     }
 
 }
