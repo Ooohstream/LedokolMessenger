@@ -256,7 +256,7 @@ public class Database {
             return new ClientInfo("##name##is##taken##", nameGroup);
         }
 
-        s = "INSERT into groгps values ('" + nameGroup + "', '" + myLogin + "')";
+        s = "INSERT into groups values ('" + nameGroup + "', '" + myLogin + "')";
         st.execute(s);
 
         s = "INSERT into group_users values ('" + nameGroup + "', '" + myLogin + "')";
