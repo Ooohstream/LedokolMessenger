@@ -263,5 +263,35 @@ public class Database {
         st.execute(s);
         return new ClientInfo(nameGroup, myLogin);
     }
+    
+        public MessageList getOldMessagesGroup(String myLogin, String nameGroup) throws SQLException {
+        List<Message> oldMessages = new ArrayList<>();
+
+        String S = "SELECT * FROM messages where "
+                + "sender ='" + myLogin + "' AND recipient ='" + nameGroup + "'";
+
+        ResultSet resultSet = st.executeQuery(S);
+
+        if (!resultSet.isBeforeFirst()) {
+            return null;
+        }
+
+        while (resultSet.next()) {
+            String sender = resultSet.getString("sender");
+            String recipient = resultSet.getString("recipient");
+            String content = resultSet.getString("content");
+            Timestamp ts = resultSet.getTimestamp("date_create");
+            LocalDateTime date_create = null;
+            if (ts != null) {
+                date_create = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts.getTime()), ZoneOffset.UTC);
+            }
+
+            Message message = new Message("Message", content, sender, recipient, date_create);
+            oldMessages.add(message);
+        }
+        MessageList messages = new MessageList("OldMessagesGroup", oldMessages);
+
+        return messages;
+    }
 
 }
