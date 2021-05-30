@@ -5,9 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -72,21 +70,28 @@ public class Client implements Runnable {
                     ClientInfo user = (ClientInfo) request;
                     ClientInfo foundUser = db.CheckUserFriends(user.getClientName(), this.clientName);
                     System.out.println(foundUser.getClientName());
-                    if (foundUser.getType().equals("##notFound##")) {
-                        activities.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
-                    } else if (foundUser.getType().equals("##It##is##you##")) {
-                        activities.add(new Respond("Respond", 404, "Нельзя добавить самого себя", java.time.LocalDateTime.now()));
-                    } else if (foundUser.getType().equals("##friend##available##")) {
-                        activities.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
-                    } else if (foundUser.getType().equals("##request##sent##")) {
-                        activities.add(new Respond("Respond", 404, "Заявка уже была отправлена", java.time.LocalDateTime.now()));
-                    } else if (foundUser.getType().equals("##check##request##")) {
-                        activities.add(new Respond("Respond", 404, "Проверьте заявки на дружбу", java.time.LocalDateTime.now()));
-                    } else {
-                        activities.add(new Respond("Respond", 200, "Заявка на дружбу с " + foundUser.getClientName() + " отправлена", java.time.LocalDateTime.now()));
-                        sendMessage(new Message("RequestFriend", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
-                        //Client client = (Client) StartServer.getClientsOnline().get(message.getRecipient());
-                        //outputStream.writeObject(foundUser);
+                    switch (foundUser.getType()) {
+                        case "##notFound##":
+                            activities.add(new Respond("Respond", 404, "Пользователь не найден", java.time.LocalDateTime.now()));
+                            break;
+                        case "##It##is##you##":
+                            activities.add(new Respond("Respond", 404, "Нельзя добавить самого себя", java.time.LocalDateTime.now()));
+                            break;
+                        case "##friend##available##":
+                            activities.add(new Respond("Respond", 404, "Пользователь уже в друзьях", java.time.LocalDateTime.now()));
+                            break;
+                        case "##request##sent##":
+                            activities.add(new Respond("Respond", 404, "Заявка уже была отправлена", java.time.LocalDateTime.now()));
+                            break;
+                        case "##check##request##":
+                            activities.add(new Respond("Respond", 404, "Проверьте заявки на дружбу", java.time.LocalDateTime.now()));
+                            break;
+                        default:
+                            activities.add(new Respond("Respond", 200, "Заявка на дружбу с " + foundUser.getClientName() + " отправлена", java.time.LocalDateTime.now()));
+                            sendMessage(new Message("RequestFriend", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
+                            //Client client = (Client) StartServer.getClientsOnline().get(message.getRecipient());
+                            //outputStream.writeObject(foundUser);
+                            break;
                     }
                 }
 

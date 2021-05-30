@@ -23,6 +23,7 @@ public class MessagesPane extends JScrollPane {
         messageList.setCellRenderer(new MyListCellRenderer());
         this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         this.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+        
         this.setViewportView(messageList);
     }
 

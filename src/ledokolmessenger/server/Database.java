@@ -13,7 +13,6 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,8 +91,8 @@ public class Database {
 
         return listfr;
     }
-    
-        public List<ClientInfo> getListFriendRequests(String id) throws SQLException {
+
+    public List<ClientInfo> getListFriendRequests(String id) throws SQLException {
         List<ClientInfo> listfr = new ArrayList<ClientInfo>();
 
         //String s = "SELECT * from users where login != '" + id + "'";
