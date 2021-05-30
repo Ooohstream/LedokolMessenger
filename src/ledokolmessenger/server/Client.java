@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -131,7 +132,24 @@ public class Client implements Runnable {
                     }
                     else
                     {
-                       activities.add(new Respond("Respond", 200, "Группа создана", java.time.LocalDateTime.now())); 
+                       activities.add(new Respond("Respond", 200, "Чат создан", java.time.LocalDateTime.now())); 
+                    }
+                }
+                
+                if (request.getType().equals("findGroup")){
+                    ClientInfo group = (ClientInfo) request;
+                    ClientInfo foundGroup = db.FindGroup(this.clientName,group.getClientName());
+                    switch (foundGroup.getType()) {
+                        case "##notFound##":
+                            activities.add(new Respond("Respond", 404, "Чат не найден", java.time.LocalDateTime.now()));
+                            break;
+                        case "##group##available##":
+                            activities.add(new Respond("Respond", 404, "Вы уже участник этого чата", java.time.LocalDateTime.now()));
+                            break;
+                        default:
+                            activities.add(new Respond("Respond", 200, "Вы присоединились к чату", java.time.LocalDateTime.now()));
+                            //sendMessage(new Message("RequestFriend", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
+                            break;
                     }
                 }
                 
@@ -141,8 +159,19 @@ public class Client implements Runnable {
                     if (oldMessages != null) {
                         activities.add(oldMessages);
                     } else {
-                        activities.add(new MessageList("OldMessages", null));
+                        activities.add(new MessageList("OldMessagesGroup", null));
                     }
+                }
+                
+                if (request.getType().equals("MessageGroup")) {
+                    Message message = (Message) request;
+                    List<ClientInfo> members = db.sendMessageGroup(message);
+                    members.forEach(member ->{
+                        Client client = (Client) StartServer.getClientsOnline().get(member.getClientName());
+                        if (client != null) {
+                            client.activities.add(message);
+                        }
+                    });
                 }
                 
                 
@@ -169,6 +198,7 @@ public class Client implements Runnable {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
 
     public void close() {
         StartServer.getClientsOnline().remove(this.clientName);
