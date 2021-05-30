@@ -2,7 +2,6 @@ package ledokolmessenger.client.ui;
 
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -17,7 +16,9 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import ledokolmessenger.client.BlockingQueue;
 import ledokolmessenger.serialized.*;
@@ -114,6 +115,15 @@ public class MainWindow extends javax.swing.JFrame {
                             this.messagePane.add(scrollPane, approvalInfo.getSender());
                             this.scrollPanes.put(approvalInfo.getSender(), scrollPane);
                         }
+                        if (activities.getFirst() != null && activities.getFirst().getType().equals("RequestFriend")) {
+                            Message requestInfo = (Message) activities.dequeue();
+                            FriendRequestsPane fRP = (FriendRequestsPane) this.friendRequestPane.getViewport().getView();
+                            fRP.addAnotherPane(requestInfo.getSender(), this.outputStream, (DefaultListModel<String>) friendList.getModel());
+                            MessagesPane scrollPane = new MessagesPane();
+                            scrollPane.configure();
+                            this.messagePane.add(scrollPane, requestInfo.getSender());
+                            this.scrollPanes.put(requestInfo.getSender(), scrollPane);
+                        }
                     }
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
@@ -148,16 +158,19 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         mainMenu = new javax.swing.JTabbedPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        friendListScrollPane = new javax.swing.JScrollPane();
         friendList = new javax.swing.JList<>();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jList2 = new javax.swing.JList<>();
         addFriendPanel = new javax.swing.JPanel();
         friendNameTextField = new javax.swing.JTextField();
         addFriend = new javax.swing.JButton();
         addFriendLabel = new javax.swing.JLabel();
         final FriendRequestsPane pane = new FriendRequestsPane();
         friendRequestPane = new javax.swing.JScrollPane(pane);
+        jPanel2 = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        groupChatLIstScrollPane = new javax.swing.JScrollPane();
+        groupChatList = new javax.swing.JList<>();
         messagePane = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -184,7 +197,7 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(115, Short.MAX_VALUE)
+                .addContainerGap(122, Short.MAX_VALUE)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -202,16 +215,9 @@ public class MainWindow extends javax.swing.JFrame {
                 friendListValueChanged(evt);
             }
         });
-        jScrollPane2.setViewportView(friendList);
+        friendListScrollPane.setViewportView(friendList);
 
-        mainMenu.addTab("Друзья", jScrollPane2);
-
-        jScrollPane3.setBorder(null);
-
-        jList2.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        jScrollPane3.setViewportView(jList2);
-
-        mainMenu.addTab("Групповые чаты", jScrollPane3);
+        mainMenu.addTab("Друзья", friendListScrollPane);
 
         addFriendPanel.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         addFriendPanel.setMaximumSize(new java.awt.Dimension(100, 100));
@@ -238,7 +244,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(addFriendPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(friendNameTextField)
-                    .addComponent(addFriend, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                    .addComponent(addFriend, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
                     .addComponent(addFriendLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -257,6 +263,50 @@ public class MainWindow extends javax.swing.JFrame {
         mainMenu.addTab("Добавить друга", addFriendPanel);
         mainMenu.addTab("Запросы в друзья", friendRequestPane);
 
+        jButton1.setText("Создать групповой чат");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Вступить в групповой чат");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        DefaultListModel<String> groupChatListModel = new DefaultListModel<>();
+        groupChatList.setModel(groupChatListModel);
+        groupChatLIstScrollPane.setViewportView(groupChatList);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
+                    .addComponent(groupChatLIstScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(groupChatLIstScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        mainMenu.addTab("Групповые чаты", jPanel2);
+
         messagePane.setLayout(new java.awt.CardLayout());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -266,14 +316,14 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(mainMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
+                    .addComponent(mainMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(messageField, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(sendButton, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))
                     .addComponent(messagePane, javax.swing.GroupLayout.PREFERRED_SIZE, 409, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -358,7 +408,6 @@ public class MainWindow extends javax.swing.JFrame {
 
                     }
                     this.gotOldMessages.put(selectedName, true);
-                    this.scrollPanes.get(selectedName).getVerticalScrollBar().setValue(this.scrollPanes.get(selectedName).getVerticalScrollBar().getMaximum());
                 }
             } catch (IOException | InterruptedException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -371,18 +420,39 @@ public class MainWindow extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_friendListValueChanged
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        JFrame frame = new JFrame();
+        String text = JOptionPane.showInputDialog(frame, "Ввидет имя чата: ");
+        if (text != null) {
+            DefaultListModel<String> model = (DefaultListModel<String>) this.groupChatList.getModel();
+            model.addElement(text);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        JFrame frame = new JFrame();
+        String text = JOptionPane.showInputDialog(frame, "Введите имя чата: ");
+        if (text != null) {
+            System.out.println(text);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addFriend;
     private javax.swing.JLabel addFriendLabel;
     private javax.swing.JPanel addFriendPanel;
     private javax.swing.JList<String> friendList;
+    private javax.swing.JScrollPane friendListScrollPane;
     private javax.swing.JTextField friendNameTextField;
     private javax.swing.JScrollPane friendRequestPane;
+    private javax.swing.JScrollPane groupChatLIstScrollPane;
+    private javax.swing.JList<String> groupChatList;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JList<String> jList2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane mainMenu;
     private javax.swing.JTextField messageField;
     private javax.swing.JPanel messagePane;
