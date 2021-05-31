@@ -24,12 +24,12 @@ public class StartServer {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         ServerSocket serverSocket = null;
         Socket userSocket = null;
-        ConnectionInfo Info = new ConnectionInfo("postgres", System.getenv("PG_PASSWORD"), "jdbc:postgresql://localhost:5432/messenger", "org.postgresql.Driver");
+        ConnectionInfo info = new ConnectionInfo("postgres", System.getenv("PG_PASSWORD"), "jdbc:postgresql://localhost:5432/messenger", "org.postgresql.Driver");
         Connection con = null;
         try {
             serverSocket = new ServerSocket(PORT);
-            Class.forName(Info.getDrvName());
-            con = DriverManager.getConnection(Info.getDbUrl(), Info.getUser(), Info.getPwd());
+            Class.forName(info.getDrvName());
+            con = DriverManager.getConnection(info.getDbUrl(), info.getUser(), info.getPwd());
             Statement st = con.createStatement();
             System.out.println("Сервер запущен");
             while (true) {

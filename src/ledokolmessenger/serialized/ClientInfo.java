@@ -7,7 +7,7 @@ package ledokolmessenger.serialized;
 public class ClientInfo extends SendableObject{
     private String clientName;
     private String password;
-    private boolean is_online;
+    private boolean pendingRequest;
     
     public ClientInfo(String type,String clientName)
     {
@@ -21,10 +21,10 @@ public class ClientInfo extends SendableObject{
         this.password = password;
     }
 
-    public ClientInfo(String type,String clientName, boolean is_online ) {
+    public ClientInfo(String type,String clientName, boolean pendingRequest ) {
         super(type);
         this.clientName=clientName;
-        this.is_online=is_online;
+        this.pendingRequest=pendingRequest;
     }
     
     
@@ -36,8 +36,8 @@ public class ClientInfo extends SendableObject{
         return password;
     }
 
-    public boolean getIs_online() {
-        return is_online;
+    public boolean getPendingRequest() {
+        return pendingRequest;
     }
     
 }

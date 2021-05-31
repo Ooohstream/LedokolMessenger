@@ -40,7 +40,7 @@ public class Authentication implements Runnable{
             
             if(authMessage.getType().equals("SignIn"))
             {
-                    String mess=db.SignIn(authMessage);
+                    String mess=db.signIn(authMessage);
                     
                     if("OK".equals(mess)){
                             outputStream.writeObject(new Respond("Respond", 200, "OK", java.time.LocalDateTime.now()));
@@ -54,7 +54,7 @@ public class Authentication implements Runnable{
             }
             else if (authMessage.getType().equals("Register"))
             {
-                    db.Register(authMessage);
+                    db.register(authMessage);
                     outputStream.writeObject(new Respond("Respond", 201, "Account created", java.time.LocalDateTime.now()));
                     this.outputStream.close();
                     this.inputStream.close();

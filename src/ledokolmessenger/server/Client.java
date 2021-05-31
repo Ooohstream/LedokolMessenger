@@ -68,7 +68,7 @@ public class Client implements Runnable {
 
                 if (request.getType().equals("addFriend")) {
                     ClientInfo user = (ClientInfo) request;
-                    ClientInfo foundUser = db.CheckUserFriends(user.getClientName(), this.clientName);
+                    ClientInfo foundUser = db.checkUserFriends(user.getClientName(), this.clientName);
                     System.out.println(foundUser.getClientName());
                     switch (foundUser.getType()) {
                         case "##notFound##":
@@ -88,26 +88,26 @@ public class Client implements Runnable {
                             break;
                         default:
                             activities.add(new Respond("Respond", 200, "Заявка на дружбу с " + foundUser.getClientName() + " отправлена", java.time.LocalDateTime.now()));
-                            sendMessage(new Message("RequestFriend", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
+                            sendMessage(new Message("FriendRequest", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
                             break;
                     }
                 }
                
                 if (request.getType().equals("approveFriend")) {
                     ClientInfo message = (ClientInfo) request;
-                    ClientInfo user = db.approveFriend(this.clientName, message.getClientName(), message.getIs_online());
+                    ClientInfo user = db.approveFriend(this.clientName, message.getClientName(), message.getPendingRequest());
                     if (user != null) {
-                        sendMessage(new Message("approveRequestFriend", this.clientName + " принял заявку в друзья", this.clientName, user.getClientName(), java.time.LocalDateTime.now()));
+                        sendMessage(new Message("approveFriendRequest", this.clientName + " принял заявку в друзья", this.clientName, user.getClientName(), java.time.LocalDateTime.now()));
                     }
                 }
 
-                if (request.getType().equals("getOldMessages")) {
+                if (request.getType().equals("getMessageHistory")) {
                     ClientInfo user  = (ClientInfo) request;
-                    MessageList oldMessages = db.getOldMessages(this.clientName, user.getClientName());
+                    MessageList oldMessages = db.getMessageHistory(this.clientName, user.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
                     } else {
-                        activities.add(new MessageList("OldMessages", null));
+                        activities.add(new MessageList("MessageHistory", null));
                     }
                 }
 
@@ -121,16 +121,16 @@ public class Client implements Runnable {
                 
                 if (request.getType().equals("createGroup")){
                     ClientInfo group = (ClientInfo) request;
-                    ClientInfo createdGroup = db.CreateGroup(this.clientName, group.getClientName());
+                    ClientInfo createdGroup = db.createGroup(this.clientName, group.getClientName());
                     if(createdGroup.getType().equals("##name##is##taken##"))
                         activities.add(new Respond("Respond", 404, "Такое название уже занято", java.time.LocalDateTime.now()));
                     else
                         activities.add(new Respond("Respond", 201, "Чат создан", java.time.LocalDateTime.now())); 
                 }
                 
-                if (request.getType().equals("findGroup")){
+                if (request.getType().equals("joinGroup")){
                     ClientInfo group = (ClientInfo) request;
-                    ClientInfo foundGroup = db.FindGroup(this.clientName,group.getClientName());
+                    ClientInfo foundGroup = db.joinGroup(this.clientName,group.getClientName());
                     switch (foundGroup.getType()) {
                         case "##notFound##":
                             activities.add(new Respond("Respond", 404, "Чат не найден", java.time.LocalDateTime.now()));
@@ -144,13 +144,13 @@ public class Client implements Runnable {
                     }
                 }
                 
-                if (request.getType().equals("getOldMessagesGroup")) {
+                if (request.getType().equals("getGroupMessageHistory")) {
                     ClientInfo request1 = (ClientInfo) request;
-                    MessageList oldMessages = db.getOldMessagesGroup(request1.getClientName());
+                    MessageList oldMessages = db.getGroupMessageHistory(request1.getClientName());
                     if (oldMessages != null)
                         activities.add(oldMessages);
                      else 
-                        activities.add(new MessageList("OldMessagesGroup", null));
+                        activities.add(new MessageList("GroupMessageHistory", null));
                     
                 }
                 
