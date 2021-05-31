@@ -8,6 +8,8 @@ package ledokolmessenger.client.ui;
  */
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -18,7 +20,6 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -56,37 +57,42 @@ public class MainWindow extends javax.swing.JFrame {
         this.inputStream = inputStream;
 
         try {
-            List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
-            List<ClientInfo> friendRequests = (List<ClientInfo>) inputStream.readObject();
-            List<ClientInfo> groups = (List<ClientInfo>) inputStream.readObject();
-                      
+            StartupInfo startupInfo = (StartupInfo) inputStream.readObject();
+
+            /* Start screen */
             JScrollPane startScreen = new JScrollPane();
-            startScreen.setBackground(Color.white);
+            startScreen.getViewport().setBackground(Color.white);
+            startScreen.getViewport().setLayout(new GridBagLayout());
             JLabel startScreenLabel = new JLabel();
             startScreenLabel.setText("LDKL");
+            startScreenLabel.setFont(new Font("Verdana", Font.BOLD, 42));
             startScreen.setViewportView(startScreenLabel);
             messagePane.add(startScreen);
-            
+
+            /* Друзья, групповые чаты, запросы на дружбу */
             DefaultListModel<String> friendListModel = (DefaultListModel<String>) friendList.getModel();
-            friends.forEach(friend -> {
+            startupInfo.getFriends().forEach(friend -> {
                 friendListModel.addElement(friend.getClientName());
                 MessagesPane scrollPane = new MessagesPane();
                 scrollPane.configure();
                 this.messagePane.add(scrollPane, friend.getClientName());
                 this.scrollPanes.put(friend.getClientName(), scrollPane);
             });
-            friendRequests.forEach(friend -> {
+
+            DefaultListModel<String> groupListModel = (DefaultListModel<String>) this.groupChatList.getModel();
+            startupInfo.getGroupChats().forEach(groupChat -> {
+                groupListModel.addElement(groupChat.getClientName());
+                MessagesPane scrollPane = new MessagesPane();
+                scrollPane.configure();
+                this.messagePane.add(scrollPane, groupChat.getClientName() + this.groupHash);
+                this.scrollPanes.put(groupChat.getClientName() + this.groupHash, scrollPane);
+            });
+
+            startupInfo.getFriendRequests().forEach(friend -> {
                 FriendRequestsPane fRP = (FriendRequestsPane) this.friendRequestPane.getViewport().getView();
                 fRP.addAnotherPane(friend.getClientName(), this.outputStream, friendListModel);
             });
-            DefaultListModel<String> groupListModel = (DefaultListModel<String>) this.groupChatList.getModel();
-            groups.forEach(group -> {
-                groupListModel.addElement(group.getClientName());
-                MessagesPane scrollPane = new MessagesPane();
-                scrollPane.configure();
-                this.messagePane.add(scrollPane, group.getClientName() + this.groupHash);
-                this.scrollPanes.put(group.getClientName() + this.groupHash, scrollPane);
-            });
+            
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -155,12 +161,15 @@ public class MainWindow extends javax.swing.JFrame {
         receiver.start();
         dynamicAcitivitiesServer.start();
 
-        addWindowListener(new WindowAdapter() {
+        this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 try {
                     try (clientSocket; outputStream; inputStream) {
                         outputStream.writeObject(new Message("Message", "##session##end##", null, null, java.time.LocalDateTime.now()));
+                        inputStream.close();
+                        outputStream.close();
+                        clientSocket.close();
                     }
                 } catch (IOException exc) {
                     System.out.println("Closed");
@@ -196,6 +205,7 @@ public class MainWindow extends javax.swing.JFrame {
         messagePane = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Ledokol Messenger");
         setResizable(false);
 
         messageField.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
@@ -212,7 +222,7 @@ public class MainWindow extends javax.swing.JFrame {
         });
         sendButton.setVisible(false);
 
-        jLabel1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Verdana", 0, 15)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Name");
 
@@ -229,8 +239,8 @@ public class MainWindow extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(exitBtn)
                 .addContainerGap())
         );

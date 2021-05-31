@@ -62,8 +62,7 @@ public class Client implements Runnable {
 
         System.out.println(this.clientName + " подключился");
         try {
-            StartupInfo startupInfo = new StartupInfo("StartupInfo",db.getListFriends(this.clientName),db.getListFriendRequests(this.clientName),db.getListGroups(this.clientName));
-            outputStream.writeObject(startupInfo);
+            outputStream.writeObject(new StartupInfo("StartupInfo",db.getListFriends(this.clientName),db.getListFriendRequests(this.clientName),db.getListGroups(this.clientName)));
             while (true) {
                 SendableObject request = (SendableObject) inputStream.readObject();
 

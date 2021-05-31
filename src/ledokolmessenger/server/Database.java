@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  *
- * @author aleks
+ * @author aleks gessA
  */
 public class Database {
 
