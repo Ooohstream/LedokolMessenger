@@ -269,8 +269,8 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jButton1" max="32767" attributes="0"/>
-                          <Component id="jButton2" pref="227" max="32767" attributes="0"/>
+                          <Component id="addGroupChatBtn" max="32767" attributes="0"/>
+                          <Component id="joinGroupChatBtn" pref="227" max="32767" attributes="0"/>
                           <Component id="groupChatListScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
                           <Component id="groupListLabel" alignment="0" max="32767" attributes="0"/>
                       </Group>
@@ -284,9 +284,9 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="groupListLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton1" min="-2" pref="21" max="-2" attributes="0"/>
+                      <Component id="addGroupChatBtn" min="-2" pref="21" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton2" min="-2" pref="21" max="-2" attributes="0"/>
+                      <Component id="joinGroupChatBtn" min="-2" pref="21" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
                       <Component id="groupChatListScrollPane" pref="247" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -295,20 +295,20 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="jButton1">
+            <Component class="javax.swing.JButton" name="addGroupChatBtn">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x421;&#x43e;&#x437;&#x434;&#x430;&#x442;&#x44c; &#x433;&#x440;&#x443;&#x43f;&#x43f;&#x43e;&#x432;&#x43e;&#x439; &#x447;&#x430;&#x442;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addGroupChatBtnActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="jButton2">
+            <Component class="javax.swing.JButton" name="joinGroupChatBtn">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x412;&#x441;&#x442;&#x443;&#x43f;&#x438;&#x442;&#x44c; &#x432; &#x433;&#x440;&#x443;&#x43f;&#x43f;&#x43e;&#x432;&#x43e;&#x439; &#x447;&#x430;&#x442;"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="joinGroupChatBtnActionPerformed"/>
               </Events>
             </Component>
             <Container class="javax.swing.JScrollPane" name="groupChatListScrollPane">
@@ -324,6 +324,9 @@
                       <StringArray count="0"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="groupChatListValueChanged"/>
+                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="DefaultListModel&lt;String&gt; groupChatListModel = new DefaultListModel&lt;&gt;();&#xa;groupChatList.setModel(groupChatListModel);"/>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
