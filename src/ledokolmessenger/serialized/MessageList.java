@@ -12,15 +12,15 @@ import java.util.List;
  * @author aleks
  */
 public class MessageList extends SendableObject {
-    private List<Message> MessageList;
+    private List<Message> messageList;
 
-    public MessageList(String type,List<Message> MessageList) {
+    public MessageList(String type,List<Message> messageList) {
         super(type);
-        this.MessageList = MessageList;
+        this.messageList = messageList;
     }
 
     public List<Message> getMessageList() {
-        return MessageList;
+        return messageList;
     }
     
     

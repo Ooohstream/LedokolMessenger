@@ -28,7 +28,7 @@ public class Database {
         this.st = st;
     }
 
-    public String SignIn(ClientInfo authMessage) throws SQLException {
+    public String signIn(ClientInfo authMessage) throws SQLException {
 
         String s = "SELECT * from users where login = '" + authMessage.getClientName() + "'";
 
@@ -51,7 +51,7 @@ public class Database {
     }
 
     
-    public void Register(ClientInfo authMessage) throws SQLException {
+    public void register(ClientInfo authMessage) throws SQLException {
 
         String login = authMessage.getClientName();
         String pass = authMessage.getPassword();
@@ -141,7 +141,7 @@ public class Database {
     }
 
     
-    public ClientInfo CheckUserFriends(String id, String Myself) throws SQLException {
+    public ClientInfo checkUserFriends(String id, String Myself) throws SQLException {
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;
         ResultSet resultSet = st.executeQuery(s);
@@ -197,7 +197,7 @@ public class Database {
         }
     }
 
-    public MessageList getOldMessages(String myLogin, String userLogin) throws SQLException {
+    public MessageList getMessageHistory(String myLogin, String userLogin) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
         String S = "SELECT * FROM messages where ("
@@ -223,24 +223,21 @@ public class Database {
             Message message = new Message("Message", content, sender, recipient, date_create);
             oldMessages.add(message);
         }
-        MessageList messages = new MessageList("OldMessages", oldMessages);
+        MessageList messages = new MessageList("MessageHistory", oldMessages);
 
         return messages;
     }
 
     public Message sendMessage(Message mess) throws SQLException {
-        //LocalDateTime localDateTime = LocalDateTime.now();
-
         String s
                 = "INSERT INTO messages (sender, recipient , content, date_create) "
                 + "VALUES ( '" + mess.getSender() + "', '" + mess.getRecipient() + "', '" + mess.getMessage() + "', '" + mess.getTime() + "' ) ";
 
         st.execute(s);
-
         return mess;
     }
 
-    public ClientInfo CreateGroup(String myLogin, String nameGroup) throws SQLException {
+    public ClientInfo createGroup(String myLogin, String nameGroup) throws SQLException {
         String s = "SELECT * from groups where name = '" + nameGroup + "'";
         ClientInfo group = null;
         ResultSet resultSet = st.executeQuery(s);
@@ -256,7 +253,7 @@ public class Database {
         return new ClientInfo(nameGroup, myLogin);
     }
 
-    public MessageList getOldMessagesGroup(String nameGroup) throws SQLException {
+    public MessageList getGroupMessageHistory(String nameGroup) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
         String S = "SELECT * FROM messages_group where recipient ='" + nameGroup + "'";
@@ -280,7 +277,7 @@ public class Database {
             Message message = new Message("Message", content, sender, recipient, date_create);
             oldMessages.add(message);
         }
-        MessageList messages = new MessageList("OldMessagesGroup", oldMessages);
+        MessageList messages = new MessageList("GroupMessageHistory", oldMessages);
 
         return messages;
     }
@@ -308,7 +305,7 @@ public class Database {
         return listfr;
     }
 
-    public ClientInfo FindGroup(String myLogin, String nameGroup) throws SQLException {
+    public ClientInfo joinGroup(String myLogin, String nameGroup) throws SQLException {
         String s = "SELECT * from groups where name = '" + nameGroup + "'";
         ClientInfo group = null;
         ResultSet resultSet = st.executeQuery(s);
