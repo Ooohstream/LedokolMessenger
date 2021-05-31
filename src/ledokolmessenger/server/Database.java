@@ -264,7 +264,7 @@ public class Database {
         return new ClientInfo(nameGroup, myLogin);
     }
 
-    public MessageList getOldMessagesGroup(String myLogin, String nameGroup) throws SQLException {
+    public MessageList getOldMessagesGroup(String nameGroup) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
         String S = "SELECT * FROM messages_group where recipient ='" + nameGroup + "'";

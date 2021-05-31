@@ -129,8 +129,9 @@ public class Client implements Runnable {
                     if(createdGroup.getType().equals("##name##is##taken##"))
                         activities.add(new Respond("Respond", 404, "Такое название уже занято", java.time.LocalDateTime.now()));
                     else
-                       activities.add(new Respond("Respond", 200, "Чат создан", java.time.LocalDateTime.now())); 
-                    
+                    {
+                       activities.add(new Respond("Respond", 201, "Чат создан", java.time.LocalDateTime.now())); 
+                    }
                 }
                 
                 if (request.getType().equals("findGroup")){
@@ -141,7 +142,7 @@ public class Client implements Runnable {
                             activities.add(new Respond("Respond", 404, "Чат не найден", java.time.LocalDateTime.now()));
                             break;
                         case "##group##available##":
-                            activities.add(new Respond("Respond", 404, "Вы уже участник этого чата", java.time.LocalDateTime.now()));
+                            activities.add(new Respond("Respond", 400, "Вы уже участник этого чата", java.time.LocalDateTime.now()));
                             break;
                         default:
                             activities.add(new Respond("Respond", 200, "Вы присоединились к чату", java.time.LocalDateTime.now()));
@@ -152,7 +153,7 @@ public class Client implements Runnable {
                 
                 if (request.getType().equals("getOldMessagesGroup")) {
                     ClientInfo request1 = (ClientInfo) request;
-                    MessageList oldMessages = db.getOldMessagesGroup(this.clientName, request1.getClientName());
+                    MessageList oldMessages = db.getOldMessagesGroup(request1.getClientName());
                     if (oldMessages != null)
                         activities.add(oldMessages);
                      else 
