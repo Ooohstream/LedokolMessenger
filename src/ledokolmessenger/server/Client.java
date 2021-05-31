@@ -62,7 +62,7 @@ public class Client implements Runnable {
 
         System.out.println(this.clientName + " подключился");
         try {
-            outputStream.writeObject(new StartupInfo("StartupInfo",db.getListFriends(this.clientName),db.getListFriendRequests(this.clientName),db.getListGroups(this.clientName)));
+            outputStream.writeObject(new StartupInfo("StartupInfo", db.getListFriends(this.clientName), db.getListFriendRequests(this.clientName), db.getListGroups(this.clientName)));
             while (true) {
                 SendableObject request = (SendableObject) inputStream.readObject();
 
@@ -92,7 +92,7 @@ public class Client implements Runnable {
                             break;
                     }
                 }
-               
+
                 if (request.getType().equals("approveFriend")) {
                     ClientInfo message = (ClientInfo) request;
                     ClientInfo user = db.approveFriend(this.clientName, message.getClientName(), message.getPendingRequest());
@@ -102,7 +102,7 @@ public class Client implements Runnable {
                 }
 
                 if (request.getType().equals("getMessageHistory")) {
-                    ClientInfo user  = (ClientInfo) request;
+                    ClientInfo user = (ClientInfo) request;
                     MessageList oldMessages = db.getMessageHistory(this.clientName, user.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
@@ -118,19 +118,20 @@ public class Client implements Runnable {
                     }
                     this.sendMessage(message);
                 }
-                
-                if (request.getType().equals("createGroup")){
+
+                if (request.getType().equals("createGroup")) {
                     ClientInfo group = (ClientInfo) request;
                     ClientInfo createdGroup = db.createGroup(this.clientName, group.getClientName());
-                    if(createdGroup.getType().equals("##name##is##taken##"))
+                    if (createdGroup.getType().equals("##name##is##taken##")) {
                         activities.add(new Respond("Respond", 404, "Такое название уже занято", java.time.LocalDateTime.now()));
-                    else
-                        activities.add(new Respond("Respond", 201, "Чат создан", java.time.LocalDateTime.now())); 
+                    } else {
+                        activities.add(new Respond("Respond", 201, "Чат создан", java.time.LocalDateTime.now()));
+                    }
                 }
-                
-                if (request.getType().equals("joinGroup")){
+
+                if (request.getType().equals("joinGroup")) {
                     ClientInfo group = (ClientInfo) request;
-                    ClientInfo foundGroup = db.joinGroup(this.clientName,group.getClientName());
+                    ClientInfo foundGroup = db.joinGroup(this.clientName, group.getClientName());
                     switch (foundGroup.getType()) {
                         case "##notFound##":
                             activities.add(new Respond("Respond", 404, "Чат не найден", java.time.LocalDateTime.now()));
@@ -143,29 +144,31 @@ public class Client implements Runnable {
                             break;
                     }
                 }
-                
+
                 if (request.getType().equals("getGroupMessageHistory")) {
                     ClientInfo request1 = (ClientInfo) request;
+                    System.out.println("getGroupMessageHistory");
                     MessageList oldMessages = db.getGroupMessageHistory(request1.getClientName());
-                    if (oldMessages != null)
+                    if (oldMessages != null) {
                         activities.add(oldMessages);
-                     else 
+                    } else {
                         activities.add(new MessageList("GroupMessageHistory", null));
-                    
+                    }
+
                 }
-                
+
                 if (request.getType().equals("MessageGroup")) {
                     Message message = (Message) request;
+                    System.out.println("MessageGroup");
                     List<ClientInfo> members = db.sendMessageGroup(message);
-                    members.forEach(member ->{
+                    members.forEach(member -> {
                         Client client = (Client) StartServer.getClientsOnline().get(member.getClientName());
                         if (client != null) {
                             client.activities.add(message);
                         }
                     });
                 }
-                
-                
+
             }
         } catch (IOException | ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -189,7 +192,6 @@ public class Client implements Runnable {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
 
     public void close() {
         StartServer.getClientsOnline().remove(this.clientName);

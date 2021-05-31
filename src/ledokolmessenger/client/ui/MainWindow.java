@@ -44,7 +44,7 @@ public class MainWindow extends javax.swing.JFrame {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private Map<String, MessagesPane> scrollPanes = new HashMap<>();
-    private Map<String, Boolean> gotOldMessages = new HashMap<>();
+    private Map<String, Boolean> loadedMessageHistory = new HashMap<>();
     private BlockingQueue activities = new BlockingQueue();
     private String groupHash = "ad936fcbed631fa67e05c3ea03953905221c9d46af0616b70badf105a966fb11";
 
@@ -405,7 +405,7 @@ public class MainWindow extends javax.swing.JFrame {
                     Message message = new Message("Message", this.messageField.getText(), this.clientName, recipient, java.time.LocalDateTime.now());
                     this.outputStream.writeObject(message);
                     scrollPanes.get(recipient).getModel().addElement(message.getSender() + ": " + message.getMessage());
-                } else if (this.mainMenu.getSelectedIndex() == 3) {
+                } else if (this.mainMenu.getSelectedIndex() == 2) {
                     String recipient = this.groupChatList.getSelectedValue();
                     Message message = new Message("MessageGroup", this.messageField.getText(), this.clientName, recipient, java.time.LocalDateTime.now());
                     this.outputStream.writeObject(message);
@@ -422,14 +422,14 @@ public class MainWindow extends javax.swing.JFrame {
         if (!evt.getValueIsAdjusting()) {
             String selectedName = this.groupChatList.getSelectedValue();
             try {
-                if (!this.gotOldMessages.containsKey(selectedName + this.groupHash)) {
-                    ClientInfo group = new ClientInfo("getOldMessagesGroup", selectedName);
+                if (!this.loadedMessageHistory.containsKey(selectedName + this.groupHash)) {
+                    ClientInfo group = new ClientInfo("getGroupMessageHistory", selectedName);
                     outputStream.writeObject(group);
                     synchronized (lock) {
                         lock.wait();
                     }
                     MessageList activity;
-                    if (activities.getFirst() != null && activities.getFirst().getType().equals("OldMessagesGroup")) {
+                    if (activities.getFirst() != null && activities.getFirst().getType().equals("GroupMessageHistory")) {
                         activity = (MessageList) activities.dequeue();
                         if (activity.getMessageList() != null) {
                             activity.getMessageList().forEach(message -> {
@@ -438,7 +438,7 @@ public class MainWindow extends javax.swing.JFrame {
                         }
 
                     }
-                    this.gotOldMessages.put(selectedName + groupHash, true);
+                    this.loadedMessageHistory.put(selectedName + groupHash, true);
                 }
             } catch (IOException | InterruptedException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -457,7 +457,7 @@ public class MainWindow extends javax.swing.JFrame {
         String text = JOptionPane.showInputDialog(frame, "Введите имя чата: ");
         if (text != null) {
             try {
-                this.outputStream.writeObject(new ClientInfo("findGroup", text));
+                this.outputStream.writeObject(new ClientInfo("joinGroup", text));
                 synchronized (lock) {
                     lock.wait();
                 }
@@ -557,14 +557,14 @@ public class MainWindow extends javax.swing.JFrame {
         if (!evt.getValueIsAdjusting()) {
             String selectedName = this.friendList.getSelectedValue();
             try {
-                if (!this.gotOldMessages.containsKey(selectedName)) {
-                    ClientInfo user = new ClientInfo("getOldMessages", selectedName);
+                if (!this.loadedMessageHistory.containsKey(selectedName)) {
+                    ClientInfo user = new ClientInfo("getMessageHistory", selectedName);
                     outputStream.writeObject(user);
                     synchronized (lock) {
                         lock.wait();
                     }
                     MessageList activity;
-                    if (activities.getFirst() != null && activities.getFirst().getType().equals("OldMessages")) {
+                    if (activities.getFirst() != null && activities.getFirst().getType().equals("MessageHistory")) {
                         activity = (MessageList) activities.dequeue();
                         if (activity.getMessageList() != null) {
                             activity.getMessageList().forEach(message -> {
@@ -573,7 +573,7 @@ public class MainWindow extends javax.swing.JFrame {
                         }
 
                     }
-                    this.gotOldMessages.put(selectedName, true);
+                    this.loadedMessageHistory.put(selectedName, true);
                 }
             } catch (IOException | InterruptedException ex) {
                 Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
