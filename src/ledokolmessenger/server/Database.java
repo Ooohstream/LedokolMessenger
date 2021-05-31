@@ -267,8 +267,7 @@ public class Database {
     public MessageList getOldMessagesGroup(String myLogin, String nameGroup) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
-        String S = "SELECT * FROM messages where "
-                + "sender ='" + myLogin + "' AND recipient ='" + nameGroup + "'";
+        String S = "SELECT * FROM messages_group where recipient ='" + nameGroup + "'";
 
         ResultSet resultSet = st.executeQuery(S);
 

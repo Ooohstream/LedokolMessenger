@@ -129,9 +129,8 @@ public class Client implements Runnable {
                     if(createdGroup.getType().equals("##name##is##taken##"))
                         activities.add(new Respond("Respond", 404, "Такое название уже занято", java.time.LocalDateTime.now()));
                     else
-                    {
                        activities.add(new Respond("Respond", 200, "Чат создан", java.time.LocalDateTime.now())); 
-                    }
+                    
                 }
                 
                 if (request.getType().equals("findGroup")){
@@ -156,9 +155,9 @@ public class Client implements Runnable {
                     MessageList oldMessages = db.getOldMessagesGroup(this.clientName, request1.getClientName());
                     if (oldMessages != null)
                         activities.add(oldMessages);
-                    } else {
+                     else 
                         activities.add(new MessageList("OldMessagesGroup", null));
-                    }
+                    
                 }
                 
                 if (request.getType().equals("MessageGroup")) {
