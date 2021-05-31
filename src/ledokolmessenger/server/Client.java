@@ -62,9 +62,8 @@ public class Client implements Runnable {
 
         System.out.println(this.clientName + " подключился");
         try {
-            outputStream.writeObject(db.getListFriends(this.clientName));
-            outputStream.writeObject(db.getListFriendRequests(this.clientName));
-            outputStream.writeObject(db.getListGroups(this.clientName));
+            StartupInfo startupInfo = new StartupInfo("StartupInfo",db.getListFriends(this.clientName),db.getListFriendRequests(this.clientName),db.getListGroups(this.clientName));
+            outputStream.writeObject(startupInfo);
             while (true) {
                 SendableObject request = (SendableObject) inputStream.readObject();
 
@@ -91,8 +90,6 @@ public class Client implements Runnable {
                         default:
                             activities.add(new Respond("Respond", 200, "Заявка на дружбу с " + foundUser.getClientName() + " отправлена", java.time.LocalDateTime.now()));
                             sendMessage(new Message("RequestFriend", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
-                            //Client client = (Client) StartServer.getClientsOnline().get(message.getRecipient());
-                            //outputStream.writeObject(foundUser);
                             break;
                     }
                 }
@@ -106,8 +103,8 @@ public class Client implements Runnable {
                 }
 
                 if (request.getType().equals("getOldMessages")) {
-                    ClientInfo request1 = (ClientInfo) request;
-                    MessageList oldMessages = db.getOldMessages(this.clientName, request1.getClientName());
+                    ClientInfo user  = (ClientInfo) request;
+                    MessageList oldMessages = db.getOldMessages(this.clientName, user.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
                     } else {
@@ -129,9 +126,7 @@ public class Client implements Runnable {
                     if(createdGroup.getType().equals("##name##is##taken##"))
                         activities.add(new Respond("Respond", 404, "Такое название уже занято", java.time.LocalDateTime.now()));
                     else
-                    {
-                       activities.add(new Respond("Respond", 201, "Чат создан", java.time.LocalDateTime.now())); 
-                    }
+                        activities.add(new Respond("Respond", 201, "Чат создан", java.time.LocalDateTime.now())); 
                 }
                 
                 if (request.getType().equals("findGroup")){
@@ -146,7 +141,6 @@ public class Client implements Runnable {
                             break;
                         default:
                             activities.add(new Respond("Respond", 200, "Вы присоединились к чату", java.time.LocalDateTime.now()));
-                            //sendMessage(new Message("RequestFriend", "Заявка на дружбу", this.clientName, foundUser.getClientName(), java.time.LocalDateTime.now()));
                             break;
                     }
                 }

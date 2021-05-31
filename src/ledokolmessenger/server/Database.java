@@ -36,28 +36,21 @@ public class Database {
         if (!resultSet.isBeforeFirst()) {
             return "Такого пользователя не существует";
         }
-
-        //throw new SQLException("Phone Number Or Password Is Incorrect");
-        //System.out.println(authMessage.getPassword());
         while (resultSet.next()) {
             String title = resultSet.getString("login");
             String password = resultSet.getString("password");
-            //System.out.println(authMessage.getPassword());
-            //System.out.println(password);
             if (authMessage.getPassword().equals(password)) {
                 s = "UPDATE users SET is_online = " + true + " WHERE login = '" + authMessage.getClientName() + "'";
                 st.executeUpdate(s);
                 return "OK";
             } else {
-                //System.out.println(password);
-                //System.out.println(authMessage.getPassword());
                 return "Неверный пароль";
             }
         }
-
         return "ничего";
     }
 
+    
     public void Register(ClientInfo authMessage) throws SQLException {
 
         String login = authMessage.getClientName();
@@ -74,7 +67,6 @@ public class Database {
     public List<ClientInfo> getListFriends(String id) throws SQLException {
         List<ClientInfo> listfr = new ArrayList<ClientInfo>();
 
-        //String s = "SELECT * from users where login != '" + id + "'";
         String s = "SELECT * from users JOIN list_friends ON list_friends.user2 = login where list_friends.user1 = '" + id + "' and status=true";
         ResultSet resultSet = st.executeQuery(s);
         if (!resultSet.isBeforeFirst()) {
@@ -85,7 +77,6 @@ public class Database {
             String name = resultSet.getString("login");
             boolean is_online = resultSet.getBoolean("is_online");
             ClientInfo user = new ClientInfo("ListFriends", name, is_online);
-//            System.out.println(user.getClientName());
             listfr.add(user);
         }
 
@@ -95,7 +86,6 @@ public class Database {
     public List<ClientInfo> getListFriendRequests(String id) throws SQLException {
         List<ClientInfo> listfr = new ArrayList<ClientInfo>();
 
-        //String s = "SELECT * from users where login != '" + id + "'";
         String s = "SELECT * from users JOIN list_friends ON list_friends.user1 = login where list_friends.user2 = '" + id + "' and status=false";
         ResultSet resultSet = st.executeQuery(s);
         if (!resultSet.isBeforeFirst()) {
@@ -106,13 +96,13 @@ public class Database {
             String name = resultSet.getString("login");
             boolean is_online = resultSet.getBoolean("is_online");
             ClientInfo user = new ClientInfo("ListFriendRequest", name, is_online);
-//            System.out.println(user.getClientName());
             listfr.add(user);
         }
 
         return listfr;
     }
 
+    
     public List<ClientInfo> getListGroups(String id) throws SQLException {
         List<ClientInfo> listfr = new ArrayList<ClientInfo>();
 
@@ -131,6 +121,7 @@ public class Database {
         return listfr;
     }
 
+    
     public ClientInfo getUser(String id) throws SQLException {
         ClientInfo user = null;
 
@@ -149,6 +140,7 @@ public class Database {
         return user;
     }
 
+    
     public ClientInfo CheckUserFriends(String id, String Myself) throws SQLException {
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;
