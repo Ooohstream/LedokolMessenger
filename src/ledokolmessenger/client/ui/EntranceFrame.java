@@ -1,13 +1,18 @@
 package ledokolmessenger.client.ui;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ledokolmessenger.serialized.ClientInfo;
@@ -29,6 +34,17 @@ public class EntranceFrame extends javax.swing.JFrame {
         this.signInPasswordField.setForeground(Color.gray);
         sha512 = MessageDigest.getInstance("SHA-512");
         this.setLocationRelativeTo(null);
+        File file = new File("rememberMe.properties");
+        if (file.exists()) {
+            try (InputStream input = new FileInputStream("rememberMe.properties")) {
+                Properties rememberMeProperties = new Properties();
+                rememberMeProperties.load(input);
+                this.signIn(rememberMeProperties.getProperty("username"), rememberMeProperties.getProperty("password").getBytes());
+            } catch (IOException ex) {
+                Logger.getLogger(EntranceFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -243,29 +259,7 @@ public class EntranceFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void signInButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signInButtonActionPerformed
-        try {
-            byte[] bytes = sha512.digest(String.valueOf(this.signInPasswordField.getPassword()).getBytes());
-            StringBuilder hashPassword = new StringBuilder();
-            for (byte b : bytes) {
-                hashPassword.append(String.format("%02X", b));
-            }
-            this.clientSocket = new Socket(IP, PORT);
-            this.getClass().toString();
-            ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
-            ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
-            oos.writeObject(new ClientInfo("SignIn", this.signInLoginField.getText(), hashPassword.toString()));
-            Respond respond = (Respond) ois.readObject();
-            if (respond.getRespondCode() == 200) {
-                System.out.println(respond.getRespond());
-                new MainWindow(clientSocket, oos, ois, this.signInLoginField.getText()).setVisible(true);
-                this.setVisible(false);
-            } else if (respond.getRespondCode() == 401) {
-                this.signInErrorLabel.setForeground(Color.red);
-                this.signInErrorLabel.setText(respond.getRespond());
-            }
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(EntranceFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.signIn(this.signInLoginField.getText(), String.valueOf(this.signInPasswordField.getPassword()).getBytes());
     }//GEN-LAST:event_signInButtonActionPerformed
 
     private void toRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toRegisterActionPerformed
@@ -339,6 +333,42 @@ public class EntranceFrame extends javax.swing.JFrame {
             Logger.getLogger(EntranceFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_registerButtonActionPerformed
+
+    public void signIn(String username, byte[] password) {
+        try {
+            byte[] bytes = sha512.digest(password);
+            StringBuilder hashPassword = new StringBuilder();
+            for (byte b : bytes) {
+                hashPassword.append(String.format("%02X", b));
+            }
+            this.clientSocket = new Socket(IP, PORT);
+            ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
+            ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
+            oos.writeObject(new ClientInfo("SignIn", username, hashPassword.toString()));
+            Respond respond = (Respond) ois.readObject();
+            if (respond.getRespondCode() == 200) {
+                if (this.rememberMe.isSelected()) {
+                    Properties rememberMeProperties = new Properties();
+                    rememberMeProperties.put("username", username);
+                    rememberMeProperties.put("password", new String(password));
+                    FileOutputStream rememberMeOutputStream = new FileOutputStream("rememberMe.properties");
+                    rememberMeProperties.store(rememberMeOutputStream, "REMEMBER ME INFO! DO NOT MODIFY!!!");
+                }
+                new MainWindow(clientSocket, oos, ois, username).setVisible(true);
+                
+                Thread closer = new Thread(() -> 
+                {
+                   this.setVisible(false);
+                });
+                closer.start();
+            } else if (respond.getRespondCode() == 401) {
+                this.signInErrorLabel.setForeground(Color.red);
+                this.signInErrorLabel.setText(respond.getRespond());
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(EntranceFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backToSignIn;
