@@ -156,9 +156,9 @@ public class Client implements Runnable {
                     MessageList oldMessages = db.getOldMessagesGroup(request1.getClientName());
                     if (oldMessages != null)
                         activities.add(oldMessages);
-                     else {
+                     else 
                         activities.add(new MessageList("OldMessagesGroup", null));
-                    }
+                    
                 }
                 
                 if (request.getType().equals("MessageGroup")) {

@@ -301,13 +301,14 @@ public class Database {
 
         List<ClientInfo> listfr = new ArrayList<ClientInfo>();
 
-        s = "SELECT * from users JOIN group_users ON user_id = login where group_id = '" + mess.getRecipient() + "'";
+        s = "SELECT * from users JOIN group_users ON user_id = login  where group_id = '" + mess.getRecipient() + "' and login !='"+mess.getSender()+"'";
         ResultSet resultSet = st.executeQuery(s);
         if (!resultSet.isBeforeFirst()) {
             return listfr;
         }
         while (resultSet.next()) {
             String name = resultSet.getString("login");
+            System.out.println(name);
             ClientInfo user = new ClientInfo("Members", name);
             listfr.add(user);
         }
