@@ -2,7 +2,7 @@ package ledokolmessenger.client.ui;
 
 /*  1) Поправить дублирование при отправлении / получении сообщений в групповых чатах + 
     2) Объединить добавление друзей и список друзей +
-    3) Сделать панель сообщений красивее 
+    3) Доделать панель сообщений +
     4) Запомнить меня +
     5) РЕФАКТОРИНГ 
  */
@@ -56,21 +56,20 @@ public class MainWindow extends javax.swing.JFrame {
         this.inputStream = inputStream;
 
         try {
-            DefaultListModel<String> model = new DefaultListModel<>();
-            this.friendList.setModel(model);
             List<ClientInfo> friends = (List<ClientInfo>) inputStream.readObject();
             List<ClientInfo> friendRequests = (List<ClientInfo>) inputStream.readObject();
             List<ClientInfo> groups = (List<ClientInfo>) inputStream.readObject();
-            this.messageField.setVisible(false);
-            this.sendButton.setVisible(false);
+                      
             JScrollPane startScreen = new JScrollPane();
             startScreen.setBackground(Color.white);
             JLabel startScreenLabel = new JLabel();
             startScreenLabel.setText("LDKL");
             startScreen.setViewportView(startScreenLabel);
             messagePane.add(startScreen);
+            
+            DefaultListModel<String> friendListModel = (DefaultListModel<String>) friendList.getModel();
             friends.forEach(friend -> {
-                model.addElement(friend.getClientName());
+                friendListModel.addElement(friend.getClientName());
                 MessagesPane scrollPane = new MessagesPane();
                 scrollPane.configure();
                 this.messagePane.add(scrollPane, friend.getClientName());
@@ -78,7 +77,7 @@ public class MainWindow extends javax.swing.JFrame {
             });
             friendRequests.forEach(friend -> {
                 FriendRequestsPane fRP = (FriendRequestsPane) this.friendRequestPane.getViewport().getView();
-                fRP.addAnotherPane(friend.getClientName(), this.outputStream, model);
+                fRP.addAnotherPane(friend.getClientName(), this.outputStream, friendListModel);
             });
             DefaultListModel<String> groupListModel = (DefaultListModel<String>) this.groupChatList.getModel();
             groups.forEach(group -> {
@@ -87,7 +86,6 @@ public class MainWindow extends javax.swing.JFrame {
                 scrollPane.configure();
                 this.messagePane.add(scrollPane, group.getClientName() + this.groupHash);
                 this.scrollPanes.put(group.getClientName() + this.groupHash, scrollPane);
-                System.out.println(group.getClientName() + this.groupHash);
             });
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -203,6 +201,7 @@ public class MainWindow extends javax.swing.JFrame {
         messageField.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         messageField.setText(" ");
         messageField.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        messageField.setVisible(false);
 
         sendButton.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         sendButton.setText("Отправить");
@@ -211,6 +210,7 @@ public class MainWindow extends javax.swing.JFrame {
                 sendButtonActionPerformed(evt);
             }
         });
+        sendButton.setVisible(false);
 
         jLabel1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -244,6 +244,8 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        DefaultListModel<String> friendListModel = new DefaultListModel<>();
+        friendList.setModel(friendListModel);
         friendList.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         friendList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
@@ -581,9 +583,8 @@ public class MainWindow extends javax.swing.JFrame {
             this.outputStream.close();
             this.clientSocket.close();
             File file = new File("rememberMe.properties");
-            
-            if(Files.deleteIfExists(file.toPath()))
-            {
+
+            if (Files.deleteIfExists(file.toPath())) {
                 System.out.println("rememberMeCleared");
             }
             System.exit(0);
