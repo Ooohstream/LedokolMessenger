@@ -340,6 +340,9 @@
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="messagePane">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_LayoutCodePre" type="java.lang.String" value="JScrollPane startScreen = new JScrollPane();&#xa;startScreen.getViewport().setBackground(Color.white);&#xa;startScreen.getViewport().setLayout(new GridBagLayout());&#xa;JLabel startScreenLabel = new JLabel();&#xa;startScreenLabel.setText(&quot;LDKL&quot;);&#xa;startScreenLabel.setFont(new Font(&quot;Verdana&quot;, Font.BOLD, 42));&#xa;startScreen.setViewportView(startScreenLabel);&#xa;messagePane.add(startScreen);"/>
+      </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignCardLayout"/>
     </Container>

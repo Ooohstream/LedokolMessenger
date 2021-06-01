@@ -7,7 +7,7 @@ import ledokolmessenger.client.ui.EntranceFrame;
 
 /**
  *
- * @author BOT
+ * @author OMEN
  */
 public class StartClient {
 

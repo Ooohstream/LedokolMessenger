@@ -103,11 +103,11 @@ public class Client implements Runnable {
 
                 if (request.getType().equals("getMessageHistory")) {
                     ClientInfo user = (ClientInfo) request;
-                    MessageList oldMessages = db.getMessageHistory(this.clientName, user.getClientName());
+                    MessageHistory oldMessages = db.getMessageHistory(this.clientName, user.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
                     } else {
-                        activities.add(new MessageList("MessageHistory", null));
+                        activities.add(new MessageHistory("MessageHistory", null));
                     }
                 }
 
@@ -148,11 +148,11 @@ public class Client implements Runnable {
                 if (request.getType().equals("getGroupMessageHistory")) {
                     ClientInfo request1 = (ClientInfo) request;
                     System.out.println("getGroupMessageHistory");
-                    MessageList oldMessages = db.getGroupMessageHistory(request1.getClientName());
+                    MessageHistory oldMessages = db.getGroupMessageHistory(request1.getClientName());
                     if (oldMessages != null) {
                         activities.add(oldMessages);
                     } else {
-                        activities.add(new MessageList("GroupMessageHistory", null));
+                        activities.add(new MessageHistory("GroupMessageHistory", null));
                     }
 
                 }

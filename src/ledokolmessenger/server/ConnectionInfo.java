@@ -10,10 +10,10 @@ package ledokolmessenger.server;
  * @author aleks
  */
 public class ConnectionInfo {
-    private String user;
-    private String pwd;
-    private String dbUrl;
-    private String drvName;
+    private final String user;
+    private final String pwd;
+    private final String dbUrl;
+    private final String drvName;
 
     public ConnectionInfo(String user, String pwd, String dbUrl, String drvName) {
         this.user = user;

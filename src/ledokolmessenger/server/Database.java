@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ledokolmessenger.server;
 
 import ledokolmessenger.serialized.*;
@@ -55,10 +50,10 @@ public class Database {
 
         String login = authMessage.getClientName();
         String pass = authMessage.getPassword();
-        boolean is_online = false;
+        boolean isOnline = false;
 
         String s = "INSERT into users"
-                + " values ('" + login + "', '" + pass + "', '" + is_online + " ')";
+                + " values ('" + login + "', '" + pass + "', '" + isOnline + " ')";
 
         st.execute(s);
 
@@ -75,8 +70,8 @@ public class Database {
 
         while (resultSet.next()) {
             String name = resultSet.getString("login");
-            boolean is_online = resultSet.getBoolean("is_online");
-            ClientInfo user = new ClientInfo("ListFriends", name, is_online);
+            boolean isOnline = resultSet.getBoolean("is_online");
+            ClientInfo user = new ClientInfo("ListFriends", name, isOnline);
             listfr.add(user);
         }
 
@@ -94,8 +89,8 @@ public class Database {
 
         while (resultSet.next()) {
             String name = resultSet.getString("login");
-            boolean is_online = resultSet.getBoolean("is_online");
-            ClientInfo user = new ClientInfo("ListFriendRequest", name, is_online);
+            boolean isOnline = resultSet.getBoolean("is_online");
+            ClientInfo user = new ClientInfo("ListFriendRequest", name, isOnline);
             listfr.add(user);
         }
 
@@ -133,15 +128,15 @@ public class Database {
 
         while (resultSet.next()) {
             String name = resultSet.getString("login");
-            boolean is_online = resultSet.getBoolean("is_online");
-            user = new ClientInfo("Friend", name, is_online);
+            boolean isOnline = resultSet.getBoolean("is_online");
+            user = new ClientInfo("Friend", name, isOnline);
             System.out.println(user.getClientName());
         }
         return user;
     }
 
     
-    public ClientInfo checkUserFriends(String id, String Myself) throws SQLException {
+    public ClientInfo checkUserFriends(String id, String myself) throws SQLException {
         String s = "SELECT * from users where login = '" + id + "'";
         ClientInfo user = null;
         ResultSet resultSet = st.executeQuery(s);
@@ -151,16 +146,16 @@ public class Database {
 
         while (resultSet.next()) {
             String name = resultSet.getString("login");
-            boolean is_online = resultSet.getBoolean("is_online");
-            user = new ClientInfo("getUser", name, is_online);
+            boolean isOnline = resultSet.getBoolean("is_online");
+            user = new ClientInfo("getUser", name, isOnline);
         }
 
-        if (Myself.equals(id)) {
+        if (myself.equals(id)) {
             return new ClientInfo("##It##is##you##", user.getClientName());
         }
 
-        String s1 = "user1='" + Myself + "' AND user2='" + id + "'";
-        String s2 = "user1='" + id + "' AND user2='" + Myself + "'";
+        String s1 = "user1='" + myself + "' AND user2='" + id + "'";
+        String s2 = "user1='" + id + "' AND user2='" + myself + "'";
         s = "SELECT * from list_friends where " + s1 + " AND status=true";
         resultSet = st.executeQuery(s);
         if (resultSet.isBeforeFirst()) {
@@ -178,26 +173,26 @@ public class Database {
             return new ClientInfo("##check##request##", user.getClientName());
         }
 
-        s = "INSERT into list_friends values ('" + Myself + "', '" + id + "',false)";
+        s = "INSERT into list_friends values ('" + myself + "', '" + id + "',false)";
         st.execute(s);
         return user;
     }
 
-    public ClientInfo approveFriend(String Myself, String id, boolean is_status) throws SQLException {
-        if (is_status == true) {
-            String s = "INSERT into list_friends values ('" + Myself + "', '" + id + "',true)";
+    public ClientInfo approveFriend(String myself, String id, boolean isStatus) throws SQLException {
+        if (isStatus == true) {
+            String s = "INSERT into list_friends values ('" + myself + "', '" + id + "',true)";
             st.execute(s);
-            s = "UPDATE list_friends SET status=true WHERE user1 = '" + id + "' AND user2 = '" + Myself + "'";
+            s = "UPDATE list_friends SET status=true WHERE user1 = '" + id + "' AND user2 = '" + myself + "'";
             st.executeUpdate(s);
             return getUser(id);
         } else {
-            String s = "DELETE from list_friends where user1 = '" + id + "' AND user2 = '" + Myself + "' and status = false";
+            String s = "DELETE from list_friends where user1 = '" + id + "' AND user2 = '" + myself + "' and status = false";
             st.execute(s);
             return null;
         }
     }
 
-    public MessageList getMessageHistory(String myLogin, String userLogin) throws SQLException {
+    public MessageHistory getMessageHistory(String myLogin, String userLogin) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
         String S = "SELECT * FROM messages where ("
@@ -215,15 +210,15 @@ public class Database {
             String recipient = resultSet.getString("recipient");
             String content = resultSet.getString("content");
             Timestamp ts = resultSet.getTimestamp("date_create");
-            LocalDateTime date_create = null;
+            LocalDateTime dateCreate = null;
             if (ts != null) {
-                date_create = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts.getTime()), ZoneOffset.UTC);
+                dateCreate = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts.getTime()), ZoneOffset.UTC);
             }
 
-            Message message = new Message("Message", content, sender, recipient, date_create);
+            Message message = new Message("Message", content, sender, recipient, dateCreate);
             oldMessages.add(message);
         }
-        MessageList messages = new MessageList("MessageHistory", oldMessages);
+        MessageHistory messages = new MessageHistory("MessageHistory", oldMessages);
 
         return messages;
     }
@@ -253,7 +248,7 @@ public class Database {
         return new ClientInfo(nameGroup, myLogin);
     }
 
-    public MessageList getGroupMessageHistory(String nameGroup) throws SQLException {
+    public MessageHistory getGroupMessageHistory(String nameGroup) throws SQLException {
         List<Message> oldMessages = new ArrayList<>();
 
         String S = "SELECT * FROM messages_group where recipient ='" + nameGroup + "'";
@@ -269,15 +264,15 @@ public class Database {
             String recipient = resultSet.getString("recipient");
             String content = resultSet.getString("content");
             Timestamp ts = resultSet.getTimestamp("date_create");
-            LocalDateTime date_create = null;
+            LocalDateTime dateCreate = null;
             if (ts != null) {
-                date_create = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts.getTime()), ZoneOffset.UTC);
+                dateCreate = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts.getTime()), ZoneOffset.UTC);
             }
 
-            Message message = new Message("Message", content, sender, recipient, date_create);
+            Message message = new Message("Message", content, sender, recipient, dateCreate);
             oldMessages.add(message);
         }
-        MessageList messages = new MessageList("GroupMessageHistory", oldMessages);
+        MessageHistory messages = new MessageHistory("GroupMessageHistory", oldMessages);
 
         return messages;
     }

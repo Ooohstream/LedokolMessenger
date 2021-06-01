@@ -14,27 +14,25 @@ import javax.swing.ListCellRenderer;
  */
 public class MyListCellRenderer implements ListCellRenderer{
 
-    private JPanel p;
+    private JPanel panel;
     private JPanel iconPanel;
-    private JLabel l;
-    private JTextArea ta;
+    private JLabel label;
+    private JTextArea textArea;
 
     public MyListCellRenderer() {
-        p = new JPanel();
-        p.setLayout(new BorderLayout());
+        panel = new JPanel();
+        panel.setLayout(new BorderLayout());
 
-        // icon
         iconPanel = new JPanel(new BorderLayout());
-        l = new JLabel(); // <-- this will be an icon instead of a
-        // text
-        iconPanel.add(l, BorderLayout.NORTH);
-        p.add(iconPanel, BorderLayout.WEST);
+        label = new JLabel();
+        
+        iconPanel.add(label, BorderLayout.NORTH);
+        panel.add(iconPanel, BorderLayout.WEST);
 
-        // text
-        ta = new JTextArea();
-        ta.setLineWrap(true);
-        ta.setWrapStyleWord(true);
-        p.add(ta, BorderLayout.CENTER);
+        textArea = new JTextArea();
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        panel.add(textArea, BorderLayout.CENTER);
     }
 
     @Override
@@ -42,15 +40,15 @@ public class MyListCellRenderer implements ListCellRenderer{
             final boolean hasFocus) {
 
         String text = (String) value;
-        ta.setText((String) value);
+        textArea.setText((String) value);
         
-        l.setText("");
+        label.setText("");
         int width = list.getWidth();
         // this is just to lure the ta's internal sizing mechanism into action
         if (width > 0) {
-            ta.setSize(width, Short.MAX_VALUE);
+            textArea.setSize(width, Short.MAX_VALUE);
         }
-        return p;
+        return panel;
 
     }
 }
