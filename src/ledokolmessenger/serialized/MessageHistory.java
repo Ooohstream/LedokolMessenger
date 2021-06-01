@@ -11,10 +11,10 @@ import java.util.List;
  *
  * @author aleks
  */
-public class MessageList extends SendableObject {
+public class MessageHistory extends SendableObject {
     private List<Message> messageList;
 
-    public MessageList(String type,List<Message> messageList) {
+    public MessageHistory(String type,List<Message> messageList) {
         super(type);
         this.messageList = messageList;
     }

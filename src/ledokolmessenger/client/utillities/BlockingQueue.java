@@ -1,4 +1,6 @@
-package ledokolmessenger.client;
+package ledokolmessenger.client.utillities;
+
+/* Блокирующая очередь событий приходящих с сервера */
 
 import java.util.LinkedList;
 import java.util.List;

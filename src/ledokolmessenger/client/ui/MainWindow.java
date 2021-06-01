@@ -29,12 +29,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import ledokolmessenger.client.BlockingQueue;
+import ledokolmessenger.client.utillities.BlockingQueue;
 import ledokolmessenger.serialized.*;
 
 /**
  *
- * @author BOT
+ * @author OMEN
  */
 public class MainWindow extends javax.swing.JFrame {
 
@@ -59,16 +59,6 @@ public class MainWindow extends javax.swing.JFrame {
         try {
             StartupInfo startupInfo = (StartupInfo) inputStream.readObject();
 
-            /* Start screen */
-            JScrollPane startScreen = new JScrollPane();
-            startScreen.getViewport().setBackground(Color.white);
-            startScreen.getViewport().setLayout(new GridBagLayout());
-            JLabel startScreenLabel = new JLabel();
-            startScreenLabel.setText("LDKL");
-            startScreenLabel.setFont(new Font("Verdana", Font.BOLD, 42));
-            startScreen.setViewportView(startScreenLabel);
-            messagePane.add(startScreen);
-
             /* Друзья, групповые чаты, запросы на дружбу */
             DefaultListModel<String> friendListModel = (DefaultListModel<String>) friendList.getModel();
             startupInfo.getFriends().forEach(friend -> {
@@ -92,7 +82,7 @@ public class MainWindow extends javax.swing.JFrame {
                 FriendRequestsPane fRP = (FriendRequestsPane) this.friendRequestPane.getViewport().getView();
                 fRP.addAnotherPane(friend.getClientName(), this.outputStream, friendListModel);
             });
-            
+
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -357,6 +347,14 @@ public class MainWindow extends javax.swing.JFrame {
         mainMenu.addTab("Групповые чаты", groupChatsTabs);
 
         messagePane.setLayout(new java.awt.CardLayout());
+        JScrollPane startScreen = new JScrollPane();
+        startScreen.getViewport().setBackground(Color.white);
+        startScreen.getViewport().setLayout(new GridBagLayout());
+        JLabel startScreenLabel = new JLabel();
+        startScreenLabel.setText("LDKL");
+        startScreenLabel.setFont(new Font("Verdana", Font.BOLD, 42));
+        startScreen.setViewportView(startScreenLabel);
+        messagePane.add(startScreen);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -428,9 +426,9 @@ public class MainWindow extends javax.swing.JFrame {
                     synchronized (lock) {
                         lock.wait();
                     }
-                    MessageList activity;
+                    MessageHistory activity;
                     if (activities.getFirst() != null && activities.getFirst().getType().equals("GroupMessageHistory")) {
-                        activity = (MessageList) activities.dequeue();
+                        activity = (MessageHistory) activities.dequeue();
                         if (activity.getMessageList() != null) {
                             activity.getMessageList().forEach(message -> {
                                 scrollPanes.get(selectedName + groupHash).getModel().addElement(message.getSender() + ": " + message.getMessage());
@@ -563,9 +561,9 @@ public class MainWindow extends javax.swing.JFrame {
                     synchronized (lock) {
                         lock.wait();
                     }
-                    MessageList activity;
+                    MessageHistory activity;
                     if (activities.getFirst() != null && activities.getFirst().getType().equals("MessageHistory")) {
-                        activity = (MessageList) activities.dequeue();
+                        activity = (MessageHistory) activities.dequeue();
                         if (activity.getMessageList() != null) {
                             activity.getMessageList().forEach(message -> {
                                 scrollPanes.get(selectedName).getModel().addElement(message.getSender() + ": " + message.getMessage());

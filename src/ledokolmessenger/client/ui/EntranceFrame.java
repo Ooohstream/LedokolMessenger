@@ -20,7 +20,7 @@ import ledokolmessenger.serialized.Respond;
 
 /**
  *
- * @author BOT
+ * @author OMEN
  */
 public class EntranceFrame extends javax.swing.JFrame {
 
